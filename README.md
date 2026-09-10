@@ -222,22 +222,6 @@ Open your browser and navigate to:
 
 ---
 
-## 🎓 College Viva / Project Q&A
-
-**Q1: Why use Machine Learning instead of static domain blacklists?**  
-> *Blacklists only block known domains that have already caused damage. Phishers register thousands of disposable domains daily that remain active for only a few hours. Our ML model evaluates 16 intrinsic structural and lexical features to detect zero-day attacks even if the domain was created minutes ago.*
-
-**Q2: Why was Random Forest chosen as the primary classifier?**  
-> *Random Forest is an ensemble of decision trees that minimizes overfitting through bagging and feature randomness. It performs exceptionally well on tabular URL feature vectors, delivering 99.57% accuracy and providing clear feature importance rankings.*
-
-**Q3: How does Shannon Entropy detect malicious websites?**  
-> *Legitimate brand domains (like `google.com` or `chase.com`) have low entropy because they use dictionary words. Algorithmically generated domains (DGAs) used by botnets and bulletproof hosts contain high randomness, which produces an elevated Shannon entropy score (>3.8 bits).*
-
-**Q4: How does the system handle email phishing?**  
-> *The email engine performs multi-layered triage: it checks cryptographic headers (SPF, DKIM, DMARC), scans for domain mismatches between sender and reply-to, flags psychological urgency words, and automatically extracts hyperlinks to classify them using the URL ML model.*
-
----
-
 ## 👨‍💻 Author & Acknowledgments
 
 - **Developer:** Saurabh P Pandey
