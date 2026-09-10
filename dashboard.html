@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Analytics & Threat Intelligence Dashboard - PhishGuard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>if (!localStorage.getItem('token')) window.location.href = 'login.html';</script>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-icon">🛡️</div>
+        <div>
+          PhishGuard <strong>ML Platform</strong>
+          <small>Model Performance & Threat History Analytics</small>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home Dashboard</a>
+        <a href="link-scanner.html">URL ML Detector</a>
+        <a href="email-analyzer.html">Email Analyzer</a>
+        <a href="dashboard.html" style="color:var(--cyan); background:rgba(94,240,255,0.08); border-radius:8px;">Scan History & Model Analytics</a>
+        <a href="#" onclick="logout()" style="color:#ff6b6b;">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container hero" style="padding-top: 36px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:28px;">
+      <div>
+        <h1 style="font-size:2.2rem; margin-bottom:6px;">Analytics & Model Intelligence</h1>
+        <p style="color:var(--muted);">Review real-time machine learning benchmark metrics, feature weights, and scan logs.</p>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
+        <button class="btn btn-primary" onclick="loadAllDashboardData()">🔄 Refresh Data</button>
+      </div>
+    </div>
+
+    <!-- TABS NAVIGATION -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab('history')">📜 Threat Scan History</button>
+      <button class="tab-btn" onclick="switchTab('model')">🧠 ML Model Evaluation (Scikit-Learn)</button>
+      <button class="tab-btn" onclick="switchTab('reports')">📢 Feedback & Reported Threats</button>
+    </div>
+
+    <!-- TAB 1: SCAN HISTORY -->
+    <div id="tabHistory">
+      <div class="glass-card card-inner">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+          <input type="text" id="historySearch" placeholder="Search target URL, email, or verdict..." style="max-width:320px;" oninput="filterHistory()" />
+          <div style="display:flex; gap:8px;">
+            <select id="moduleFilter" onchange="filterHistory()" style="padding:8px 12px; border-radius:8px; background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--line);">
+              <option value="all">All Modules</option>
+              <option value="url_ml">URL Machine Learning</option>
+              <option value="email_nlp">Email NLP Analyzer</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--line); text-align:left; color:var(--muted); font-size:0.85rem;">
+                <th style="padding:12px;">ID</th>
+                <th style="padding:12px;">Target / Target URL</th>
+                <th style="padding:12px;">Module</th>
+                <th style="padding:12px;">Verdict</th>
+                <th style="padding:12px;">Confidence</th>
+                <th style="padding:12px;">Risk Score</th>
+                <th style="padding:12px;">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr><td colspan="7" style="text-align:center; padding:24px; color:var(--muted);">Loading scan records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: ML MODEL EVALUATION -->
+    <div id="tabModel" style="display:none;">
+      <!-- Key Model Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val" id="rfAcc">96.85%</div>
+          <div class="metric-label">Random Forest Accuracy</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="rfPrec">97.10%</div>
+          <div class="metric-label">Precision Score</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="rfRec">96.50%</div>
+          <div class="metric-label">Recall Rate</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="rfF1">96.80%</div>
+          <div class="metric-label">F1-Score</div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:20px; margin-bottom:28px;">
+        <!-- Algorithm Comparison Table -->
+        <div class="glass-card card-inner">
+          <h3 style="margin-bottom:14px; font-size:1.1rem; color:#fff;">📊 Algorithm Performance Benchmark</h3>
+          <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">
+            Evaluated on 3,500 balanced phishing/legitimate URL feature vectors with an 80/20 train-test split.
+          </p>
+          <table style="width:100%; border-collapse:collapse; font-size:0.88rem;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--line); color:var(--muted); text-align:left;">
+                <th style="padding:10px;">Algorithm</th>
+                <th style="padding:10px;">Accuracy</th>
+                <th style="padding:10px;">Precision</th>
+                <th style="padding:10px;">Recall</th>
+                <th style="padding:10px;">F1-Score</th>
+              </tr>
+            </thead>
+            <tbody id="algorithmsTable">
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                <td style="padding:10px; font-weight:700; color:var(--cyan);">Random Forest (Best)</td>
+                <td style="padding:10px; color:#2ed573; font-weight:700;">96.85%</td>
+                <td style="padding:10px;">97.10%</td>
+                <td style="padding:10px;">96.50%</td>
+                <td style="padding:10px;">96.80%</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                <td style="padding:10px; font-weight:600;">Decision Tree</td>
+                <td style="padding:10px;">93.40%</td>
+                <td style="padding:10px;">93.10%</td>
+                <td style="padding:10px;">93.70%</td>
+                <td style="padding:10px;">93.40%</td>
+              </tr>
+              <tr>
+                <td style="padding:10px; font-weight:600;">Logistic Regression</td>
+                <td style="padding:10px;">91.20%</td>
+                <td style="padding:10px;">91.80%</td>
+                <td style="padding:10px;">90.50%</td>
+                <td style="padding:10px;">91.14%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Training Summary Card -->
+        <div class="glass-card card-inner">
+          <h3 style="margin-bottom:14px; font-size:1.1rem; color:#fff;">🧪 Dataset & Architecture Info</h3>
+          <ul style="list-style:none; line-height:2.1; font-size:0.88rem; color:#c0d8ff;">
+            <li><strong>Dataset Source:</strong> UCI Phishing Websites & PhishTank Corpus</li>
+            <li><strong>Total Samples:</strong> <span id="dsSize">3,500</span> Balanced Vectors</li>
+            <li><strong>Train / Test Split:</strong> 80% Training / 20% Testing</li>
+            <li><strong>Feature Space:</strong> 16 Extracted Lexical & Structural Features</li>
+            <li><strong>Classifier Model:</strong> RandomForestClassifier(n_estimators=100)</li>
+            <li><strong>Model Serialization:</strong> Joblib Binary File (.pkl)</li>
+            <li><strong>Inference Speed:</strong> ~12ms per URL scan</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Feature Importance Bar Chart -->
+      <div class="glass-card card-inner">
+        <h3 style="margin-bottom:12px; font-size:1.1rem; color:#fff;">⭐ Random Forest Feature Importance Ranking</h3>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:18px;">
+          Relative weight and predictive power of each extracted feature in distinguishing phishing sites from legitimate domains.
+        </p>
+        <div id="featureImportanceBars" style="display:flex; flex-direction:column; gap:12px;"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: REPORTED THREATS -->
+    <div id="tabReports" style="display:none;">
+      <div class="glass-card card-inner">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+          <div>
+            <h3 style="font-size:1.15rem; color:#fff;">📢 Community Reported Threats & Feedback</h3>
+            <p style="font-size:0.85rem; color:var(--muted);">
+              User-submitted false positives and newly discovered phishing links used to retrain the ML model.
+            </p>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--line); text-align:left; color:var(--muted); font-size:0.85rem;">
+                <th style="padding:12px;">Report ID</th>
+                <th style="padding:12px;">Target Domain / URL</th>
+                <th style="padding:12px;">Classification Type</th>
+                <th style="padding:12px;">Analyst Notes</th>
+                <th style="padding:12px;">Status</th>
+                <th style="padding:12px;">Reported Date</th>
+              </tr>
+            </thead>
+            <tbody id="reportsTableBody">
+              <tr><td colspan="6" style="text-align:center; padding:24px; color:var(--muted);">Loading reported threats...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer style="margin-top: 60px;">
+    <div class="container footer-box">
+      <h3 style="color:#fff;">Advanced Phishing Website & Email Detection System</h3>
+      <p>College Mini Project • Machine Learning Architecture Powered by Python & Scikit-Learn</p>
+    </div>
+  </footer>
+
+  <script>
+    let rawScans = [];
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.href = 'login.html';
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tabHistory').style.display = 'none';
+      document.getElementById('tabModel').style.display = 'none';
+      document.getElementById('tabReports').style.display = 'none';
+
+      if (tab === 'history') {
+        document.getElementById('tabHistory').style.display = 'block';
+        event.target.classList.add('active');
+      } else if (tab === 'model') {
+        document.getElementById('tabModel').style.display = 'block';
+        event.target.classList.add('active');
+      } else if (tab === 'reports') {
+        document.getElementById('tabReports').style.display = 'block';
+        event.target.classList.add('active');
+      }
+    }
+
+    async function loadAllDashboardData() {
+      loadHistory();
+      loadModelInfo();
+      loadReports();
+    }
+
+    async function loadHistory() {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/history', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.status === 401 || res.status === 403) return logout();
+
+        const data = await res.json();
+        rawScans = data.scans || [];
+        renderHistoryTable(rawScans);
+      } catch (err) {
+        document.getElementById('historyTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:red">Failed to load history.</td></tr>';
+      }
+    }
+
+    function renderHistoryTable(scans) {
+      const tbody = document.getElementById('historyTableBody');
+      if (!scans || scans.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--muted);">No threat scans recorded yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = scans.map(s => {
+        const isPhish = (s.verdict || '').toLowerCase().includes('phish') || (s.verdict || '').toLowerCase().includes('malicious');
+        const badgeColor = isPhish ? '#ff4757' : '#2ed573';
+        const badgeBg = isPhish ? 'rgba(255,71,87,0.15)' : 'rgba(46,213,115,0.15)';
+        const dateStr = s.timestamp ? new Date(s.timestamp).toLocaleString() : 'Recent';
+
+        return `
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.88rem;">
+            <td style="padding:12px; font-family:monospace; color:var(--muted);">#${s.id}</td>
+            <td style="padding:12px; font-weight:600; max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${s.target}">
+              ${s.target}
+            </td>
+            <td style="padding:12px; text-transform:uppercase; font-size:0.75rem; color:var(--cyan); font-weight:700;">
+              ${s.module === 'url_ml' ? '🌐 URL ML' : (s.module === 'email_nlp' ? '📧 Email NLP' : s.module)}
+            </td>
+            <td style="padding:12px;">
+              <span style="display:inline-block; padding:3px 10px; border-radius:6px; background:${badgeBg}; color:${badgeColor}; font-weight:800; font-size:0.75rem; text-transform:uppercase;">
+                ${s.verdict}
+              </span>
+            </td>
+            <td style="padding:12px; font-weight:700;">${s.confidence ? s.confidence + '%' : '95.0%'}</td>
+            <td style="padding:12px; font-family:monospace; font-weight:800; color:${badgeColor};">${s.riskScore}/100</td>
+            <td style="padding:12px; font-size:0.8rem; color:var(--muted);">${dateStr}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterHistory() {
+      const q = document.getElementById('historySearch').value.toLowerCase();
+      const mod = document.getElementById('moduleFilter').value;
+
+      const filtered = rawScans.filter(s => {
+        const matchQ = (s.target || '').toLowerCase().includes(q) || (s.verdict || '').toLowerCase().includes(q);
+        const matchMod = mod === 'all' || s.module === mod;
+        return matchQ && matchMod;
+      });
+      renderHistoryTable(filtered);
+    }
+
+    async function loadModelInfo() {
+      try {
+        const res = await fetch('/api/model-info');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data.algorithms && data.algorithms['Random Forest']) {
+          const rf = data.algorithms['Random Forest'];
+          document.getElementById('rfAcc').innerText = rf.accuracy + '%';
+          document.getElementById('rfPrec').innerText = rf.precision + '%';
+          document.getElementById('rfRec').innerText = rf.recall + '%';
+          document.getElementById('rfF1').innerText = rf.f1_score + '%';
+        }
+
+        if (data.dataset_size) {
+          document.getElementById('dsSize').innerText = data.dataset_size.toLocaleString();
+        }
+
+        // Render Feature Importances
+        if (data.feature_importances) {
+          const container = document.getElementById('featureImportanceBars');
+          container.innerHTML = '';
+          data.feature_importances.slice(0, 10).forEach(item => {
+            const row = document.createElement('div');
+            row.innerHTML = `
+              <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:4px;">
+                <span><strong>${item.feature}</strong></span>
+                <span style="color:var(--cyan); font-family:monospace; font-weight:700;">${item.importance}% importance</span>
+              </div>
+              <div style="height:8px; background:rgba(255,255,255,0.06); border-radius:999px; overflow:hidden;">
+                <div style="height:100%; width:${Math.min(100, item.importance * 4.5)}%; background:linear-gradient(90deg, #4e9eff, #5ef0ff); border-radius:999px;"></div>
+              </div>
+            `;
+            container.appendChild(row);
+          });
+        }
+      } catch (e) {
+        console.log('Error fetching model info:', e);
+      }
+    }
+
+    async function loadReports() {
+      try {
+        const res = await fetch('/api/reports');
+        if (!res.ok) return;
+        const data = await res.json();
+        const tbody = document.getElementById('reportsTableBody');
+        const reports = data.reports || [];
+
+        if (reports.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--muted);">No feedback reports submitted yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = reports.map(r => `
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.88rem;">
+            <td style="padding:12px; font-family:monospace; color:var(--muted);">#${r.id}</td>
+            <td style="padding:12px; font-weight:600; color:#fff;">${r.target}</td>
+            <td style="padding:12px; text-transform:uppercase; font-size:0.75rem; color:var(--cyan); font-weight:700;">
+              ${r.threat_type.replace('_', ' ')}
+            </td>
+            <td style="padding:12px; color:var(--muted); font-size:0.82rem;">${r.notes || 'No comments'}</td>
+            <td style="padding:12px;">
+              <span style="display:inline-block; padding:3px 8px; border-radius:6px; background:rgba(255,171,0,0.15); color:#ffab00; font-size:0.75rem; font-weight:700;">
+                ${r.status}
+              </span>
+            </td>
+            <td style="padding:12px; font-size:0.8rem; color:var(--muted);">${new Date(r.created_at).toLocaleDateString()}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        console.log('Error fetching reports:', e);
+      }
+    }
+
+    function exportCSV() {
+      if (!rawScans || rawScans.length === 0) return alert('No data to export.');
+      let csv = 'ID,Target,Module,Verdict,Confidence,RiskScore,Timestamp\n';
+      rawScans.forEach(s => {
+        csv += `"${s.id}","${(s.target||'').replace(/"/g, '""')}","${s.module}","${s.verdict}","${s.confidence}","${s.riskScore}","${s.timestamp}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `phishing_scans_export_${Date.now()}.csv`;
+      a.click();
+    }
+
+    loadAllDashboardData();
+  </script>
+</body>
+</html>

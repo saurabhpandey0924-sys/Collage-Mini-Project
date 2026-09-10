@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CyberSec Platform - Login</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+      padding: 40px;
+    }
+    .auth-card h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 1.8rem;
+    }
+    .auth-card p {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+    .switch-mode {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .switch-mode a {
+      color: var(--cyan);
+      cursor: pointer;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="glass-card auth-card card-inner">
+      <div class="brand" style="justify-content: center; margin-bottom: 30px;">
+        <div class="brand-icon">🛡️</div>
+        <div>
+          CyberSec <strong>Platform</strong>
+          <small>Enterprise Security Suite</small>
+        </div>
+      </div>
+
+      <h2 id="authTitle">Welcome Back</h2>
+      <p id="authDesc">Sign in to access advanced cybersecurity tools and analytics.</p>
+
+      <form id="authForm">
+        <div class="field">
+          <label>Username</label>
+          <input type="text" id="username" placeholder="Enter username" required />
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="Enter password" required />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;" id="authBtn">Log In</button>
+      </form>
+      <div id="errorMsg" style="color: var(--danger); text-align: center; margin-top: 15px; display: none;"></div>
+
+      <div class="switch-mode" id="switchMode">
+        Don't have an account? <a onclick="toggleMode()">Register here</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isLogin = true;
+
+    function toggleMode() {
+      isLogin = !isLogin;
+      document.getElementById('authTitle').innerText = isLogin ? 'Welcome Back' : 'Create Account';
+      document.getElementById('authDesc').innerText = isLogin ? 'Sign in to access advanced cybersecurity tools and analytics.' : 'Register to start using our powerful OSINT tools.';
+      document.getElementById('authBtn').innerText = isLogin ? 'Log In' : 'Register';
+      document.getElementById('switchMode').innerHTML = isLogin 
+        ? `Don't have an account? <a onclick="toggleMode()">Register here</a>` 
+        : `Already have an account? <a onclick="toggleMode()">Log in here</a>`;
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+
+    document.getElementById('authForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: u, password: p })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'Request failed');
+
+        if (isLogin) {
+          localStorage.setItem('token', data.token);
+          const loggedUsername = (data.user && data.user.username) ? data.user.username : (data.username || u);
+          localStorage.setItem('username', loggedUsername);
+          window.location.href = 'index.html'; // Redirect to landing page
+        } else {
+          toggleMode();
+          document.getElementById('errorMsg').style.display = 'block';
+          document.getElementById('errorMsg').style.color = 'var(--success)';
+          document.getElementById('errorMsg').innerText = 'Registration successful! Please log in.';
+        }
+      } catch (err) {
+        document.getElementById('errorMsg').style.display = 'block';
+        document.getElementById('errorMsg').style.color = 'var(--danger)';
+        document.getElementById('errorMsg').innerText = err.message;
+      }
+    });
+  </script>
+</body>
+</html>

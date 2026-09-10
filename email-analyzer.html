@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saurabh — Advanced Phishing Detection Suite</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="container nav-inner">
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <div>
+        PhishGuard <strong>ML Platform</strong>
+        <small>Email Phishing & Threat Triage Analyzer</small>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="index.html">Home Dashboard</a>
+      <a href="link-scanner.html">URL ML Detector</a>
+      <a href="email-analyzer.html" style="color:var(--cyan); background:rgba(94,240,255,0.08); border-radius:8px;">Email Analyzer</a>
+      <a href="dashboard.html">Scan History</a>
+      <a href="#samples">Samples</a>
+      <a href="#rules">Red Flags</a>
+      <a href="#learn">Learn</a>
+    </nav>
+    <div class="nav-badge">⚡ ML ENGINE ACTIVE</div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="container hero-grid">
+    <div class="glass-card">
+      <div class="card-inner">
+        <div class="eyebrow"><div class="pulse-dot"></div> Advanced Phishing Detection • 20+ Attack Techniques</div>
+        <h1>Catch Every <span class="grad">Phishing Email</span><br>Before It Catches You</h1>
+        <p>
+          Industry-grade email triage engine analyzing <strong>20+ red flag categories</strong> — urgency triggers,
+          homoglyph domain attacks, header spoofing, TOAD callback scams, BEC fraud, AI-generated phishing,
+          lookalike domains, and more. Powered by rule-based detection + optional AI analysis.
+        </p>
+        <div class="btn-row">
+          <a href="#analyzer" class="btn btn-primary">⚡ Analyze an Email</a>
+          <a href="#samples" class="btn btn-ghost">Try Sample Attacks</a>
+        </div>
+      </div>
+    </div>
+    <div class="glass-card">
+      <div class="stat-grid">
+        <div class="stat-item">
+          <div class="num blue">20+</div>
+          <p>Red flag categories covering every known phishing technique</p>
+        </div>
+        <div class="stat-item">
+          <div class="num cyan">3</div>
+          <p>Verdict tiers: Safe, Suspicious, and Malicious</p>
+        </div>
+        <div class="stat-item">
+          <div class="num green">AI</div>
+          <p>Optional Claude AI deep analysis for advanced threats</p>
+        </div>
+        <div class="stat-item">
+          <div class="num red">0ms</div>
+          <p>Instant local rule-engine with zero server roundtrip</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ANALYZER -->
+<section id="analyzer">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-tag">⚡ Core Engine</div>
+      <h2>Email Phishing Analyzer</h2>
+      <p>Paste the sender address, subject line, and full email body. The engine scans against 20+ phishing indicators including domain tricks, psychological manipulation, dangerous attachments, homoglyphs, and more.</p>
+    </div>
+
+    <div class="analyzer-grid">
+      <!-- INPUT PANEL -->
+      <div class="glass-card">
+        <div class="panel-body">
+          <div class="panel-head">
+            <h3>📧 Paste Email Details</h3>
+            <span>Manual input / lab simulation</span>
+          </div>
+
+          <div class="ai-toggle-row">
+            <label class="toggle-switch">
+              <input type="checkbox" id="aiToggle" />
+              <span class="toggle-track"></span>
+            </label>
+            <div>
+              <div class="ai-toggle-label">🤖 Enable AI Deep Analysis</div>
+              <div class="ai-toggle-sub">Claude AI will provide additional context and threat narrative</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="sender">Sender (From) <span class="field-hint-tag">🔍 domain checked</span></label>
+            <input id="sender" type="text" placeholder='e.g. "Microsoft Support" <support@micros0ft-logins.com>' />
+          </div>
+
+          <div class="field">
+            <label for="replyto">Reply-To (if different) <span class="field-hint-tag">⚠️ mismatch = red flag</span></label>
+            <input id="replyto" type="text" placeholder='e.g. hacker@protonmail.com (leave blank if same)' />
+          </div>
+
+          <div class="field">
+            <label for="subject">Subject Line</label>
+            <input id="subject" type="text" placeholder='e.g. URGENT: Your account has been compromised' />
+          </div>
+
+          <div class="field">
+            <label for="body">Email Body</label>
+            <textarea id="body" placeholder="Paste the complete email body here. Include any suspicious links, attachment names (.exe .iso .js), OTP/MFA prompts, wire transfer requests, QR codes, etc."></textarea>
+            <div class="field-note">💡 Tip: Include URLs, attachment names, phone numbers, and any claims about executive requests for best results.</div>
+          </div>
+
+          <div class="action-row">
+            <button class="btn btn-primary" onclick="runAnalysis()">⚡ Run Analysis</button>
+            <button class="btn btn-ghost" onclick="clearForm()">🗑 Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULT PANEL -->
+      <div class="glass-card">
+        <div class="panel-body">
+          <div class="panel-head">
+            <h3>📋 Triage Report</h3>
+            <span id="resultTimestamp"></span>
+          </div>
+          <div id="resultArea">
+            <div class="empty-state">
+              <span class="empty-icon">🔍</span>
+              No report generated yet.<br>
+              Enter an email above and click <strong>Run Analysis</strong>,<br>
+              or try one of the <a href="#samples" style="color:var(--primary)">sample phishing scenarios</a> below.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SAMPLES -->
+<section id="samples">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-tag">📚 Attack Library</div>
+      <h2>Sample Phishing Scenarios</h2>
+      <p>Real-world attack patterns — CEO fraud, Microsoft credential theft, TOAD callback scams, QR phishing, legitimate email, and more. Click any card to auto-load and analyze.</p>
+    </div>
+    <div class="sample-grid" id="sampleGrid"></div>
+  </div>
+</section>
+
+<!-- RED FLAGS -->
+<section id="rules">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-tag">🚩 Detection Rules</div>
+      <h2>20+ Phishing Red Flag Categories</h2>
+      <p>Every email is scanned against these categories. Each rule carries a weighted severity score contributing to the final risk verdict.</p>
+    </div>
+    <div class="rules-grid" id="rulesGrid"></div>
+  </div>
+</section>
+
+<!-- LEARN -->
+<section id="learn">
+  <div class="container">
+    <div class="sec-head">
+      <div class="sec-tag">🎓 Awareness</div>
+      <h2>Phishing Attack Techniques Explained</h2>
+      <p>Understanding how attackers think is the best defense. These are the most dangerous and widely-used modern phishing techniques.</p>
+    </div>
+    <div class="edu-grid" id="eduGrid"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-box">
+      <h3>🛡️ Saurabh — Advanced Phishing Detection Suite</h3>
+      <p>
+        A cybersecurity project demonstrating professional phishing triage, 20+ red flag detection,
+        AI-powered threat analysis, suspicious domain recognition, and analyst-grade reporting.
+        Built for educational and portfolio use.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

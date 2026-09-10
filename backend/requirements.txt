@@ -1,0 +1,9 @@
+flask>=3.1.0
+flask-cors>=6.0.0
+scikit-learn>=1.6.0
+pandas>=2.2.0
+numpy>=2.0.0
+requests>=2.32.0
+beautifulsoup4>=4.13.0
+joblib>=1.4.0
+scipy>=1.15.0

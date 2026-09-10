@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Data Breach Checker - CyberSec Platform</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>if (!localStorage.getItem('token')) window.location.href = 'login.html';</script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-icon">🛡️</div>
+        <div>CyberSec <strong>Platform</strong></div>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home Dashboard</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container hero" style="padding-top: 40px;">
+    <h1>Data Breach Checker</h1>
+    <p>Check if your email or phone number has been exposed in a known dark web data breach.</p>
+    
+    <div class="glass-card card-inner">
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="emailInput" placeholder="Enter email to check..." />
+      </div>
+      <button class="btn btn-primary" onclick="checkBreach()">Check for Breaches</button>
+      
+      <div id="resultArea" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.href = 'login.html';
+    }
+
+    async function checkBreach() {
+      const email = document.getElementById('emailInput').value.trim();
+      if (!email) return alert('Please enter an email.');
+
+      const resArea = document.getElementById('resultArea');
+      resArea.innerHTML = '<div class="loading-spinner"></div> Searching dark web records...';
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/analyze/breach', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ email })
+        });
+
+        if (response.status === 401 || response.status === 403) return logout();
+
+        const data = await response.json();
+        const vClass = data.breached ? 'v-malicious' : 'v-safe';
+        const vIcon = data.breached ? '🚨' : '✅';
+        const vText = data.breached ? 'COMPROMISED' : 'SAFE';
+
+        resArea.innerHTML = `
+          <div class="result-header" style="margin-top: 15px;">
+            <div class="verdict-badge ${vClass}">${vIcon} VERDICT: ${vText}</div>
+          </div>
+          <div class="rcard" style="margin-top: 15px;">
+            <h4>Analysis</h4>
+            <p>${data.message}</p>
+          </div>
+        `;
+
+        fetch('/api/history', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            module: 'Data Breach Checker',
+            target: email,
+            riskScore: data.breached ? 90 : 0,
+            verdict: vText
+          })
+        });
+
+      } catch (err) {
+        resArea.innerHTML = '<p style="color:red">Failed to check. Ensure backend is running.</p>';
+      }
+    }
+  </script>
+</body>
+</html>

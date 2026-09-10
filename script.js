@@ -1,3 +1,25 @@
+if (!localStorage.getItem('token')) window.location.href = 'login.html';
+
+function analyzeHeaders(headers) {
+  if (!headers) return null;
+  const h = headers.toLowerCase();
+  const results = [];
+  
+  if (h.includes('spf=fail') || h.includes('spf=softfail')) results.push('❌ SPF Check Failed');
+  else if (h.includes('spf=pass')) results.push('✅ SPF Check Passed');
+  else results.push('⚠️ No SPF record found');
+
+  if (h.includes('dkim=fail')) results.push('❌ DKIM Signature Invalid');
+  else if (h.includes('dkim=pass')) results.push('✅ DKIM Signature Valid');
+  else results.push('⚠️ No DKIM signature found');
+
+  if (h.includes('dmarc=fail')) results.push('❌ DMARC Policy Failed');
+  else if (h.includes('dmarc=pass')) results.push('✅ DMARC Policy Passed');
+  else results.push('⚠️ No DMARC record found');
+
+  return results.join('\n');
+}
+
 // ============================================================
 // RED FLAG DEFINITIONS — 20+ CATEGORIES
 // ============================================================
@@ -252,42 +274,29 @@ function analyzeEmail(sender, replyto, subject, body) {
 }
 
 // ============================================================
-// AI ANALYSIS VIA CLAUDE API
+// AI API INTEGRATION (CALLING NODE.JS BACKEND)
 // ============================================================
 async function getAIAnalysis(sender, replyto, subject, body, flags) {
-  const flagSummary = flags.map(f => `- ${f.name}: matched "${f.keyword}" in ${f.loc}`).join("\n");
-  const prompt = `You are an expert cybersecurity analyst specializing in phishing email detection and threat intelligence.
+  try {
+    const response = await fetch('http://localhost:3000/api/analyze/ai', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ emailBody: body })
+    });
 
-Analyze this email for phishing threats:
-FROM: ${sender}
-REPLY-TO: ${replyto || "(same as from)"}
-SUBJECT: ${subject}
-BODY:
-${body}
+    if (!response.ok) {
+      throw new Error('Backend responded with an error');
+    }
 
-My rule engine already detected these red flags:
-${flagSummary || "None detected by rules"}
-
-Provide:
-1. THREAT ASSESSMENT: What specific attack technique is being used? (BEC, spear phishing, vishing, TOAD, etc.)
-2. ATTACKER INTENT: What is the attacker trying to achieve?
-3. SOCIAL ENGINEERING ANALYSIS: What psychological manipulation techniques are used?
-4. MISSED INDICATORS: Any subtle red flags the rule engine may have missed?
-5. RECOMMENDED ACTIONS: Specific steps for the victim and IT security team.
-
-Be concise, technical, and direct. Max 250 words.`;
-
-  const resp = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: 1000,
-      messages: [{ role: "user", content: prompt }]
-    })
-  });
-  const data = await resp.json();
-  return data.content?.map(c => c.text || "").join("") || "AI analysis unavailable.";
+    const data = await response.json();
+    return data.analysis;
+  } catch (err) {
+    console.error("AI Analysis Fetch Error:", err);
+    throw err;
+  }
 }
 
 // ============================================================
@@ -365,10 +374,6 @@ function renderResult(report, aiText) {
         <p>${esc(reason)}</p>
       </div>
       <div class="rcard">
-        <h4>🛡️ Recommended Action</h4>
-        <p>${esc(action)}</p>
-      </div>
-      <div class="rcard">
         <h4>🚩 Matched Red Flags (${flags.length})</h4>
         ${flagsHTML}
       </div>
@@ -377,32 +382,160 @@ function renderResult(report, aiText) {
   `;
 }
 
+async function getUrlAnalysis(body) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const urls = body.match(urlRegex);
+  if (!urls || urls.length === 0) return null;
+  const targetUrl = urls[0]; 
+  try {
+    const response = await fetch('/api/predict/url', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ url: targetUrl })
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (err) {
+    return null;
+  }
+}
+
 async function runAnalysis() {
   const sender  = document.getElementById("sender").value.trim();
   const replyto = document.getElementById("replyto").value.trim();
   const subject = document.getElementById("subject").value.trim();
   const body    = document.getElementById("body").value.trim();
-  const useAI   = document.getElementById("aiToggle").checked;
+  const rawHeaders = document.getElementById("rawHeaders") ? document.getElementById("rawHeaders").value.trim() : "";
 
   if (!sender && !subject && !body) {
     alert("Please enter at least sender, subject, or body before running the analysis.");
     return;
   }
 
-  const report = analyzeEmail(sender, replyto, subject, body);
+  const resultArea = document.getElementById("resultArea");
+  resultArea.innerHTML = '<div style="text-align:center; padding:30px;"><div class="loading-spinner" style="margin:0 auto 12px;"></div><p style="color:var(--cyan); font-weight:600;">Executing NLP Triage & URL Machine Learning Classifier...</p></div>';
+  resultArea.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  if (useAI) {
-    renderResult(report, "loading");
-    document.getElementById("resultArea").scrollIntoView({ behavior: "smooth", block: "start" });
-    try {
-      const aiText = await getAIAnalysis(sender, replyto, subject, body, report.flags);
-      renderResult(report, aiText);
-    } catch (e) {
-      renderResult(report, "AI analysis failed. Rule-based results are shown above.");
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch('/api/predict/email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        sender,
+        replyTo: replyto,
+        subject,
+        body,
+        headers: rawHeaders
+      })
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+      return;
     }
-  } else {
-    renderResult(report, null);
-    document.getElementById("resultArea").scrollIntoView({ behavior: "smooth", block: "start" });
+
+    const data = await response.json();
+    document.getElementById("resultTimestamp").textContent = new Date().toLocaleTimeString();
+
+    const isPhish = data.verdict.toLowerCase().includes('phish');
+    const isSuspicious = data.verdict.toLowerCase().includes('suspicious');
+    let vBadgeClass = isPhish ? 'v-malicious' : (isSuspicious ? 'v-suspicious' : 'v-safe');
+    let vIcon = isPhish ? '🚨' : (isSuspicious ? '⚠️' : '✅');
+
+    let urlsHTML = "";
+    if (data.embedded_urls_scanned && data.embedded_urls_scanned.length > 0) {
+      urlsHTML = `
+        <div class="rcard" style="margin-top:16px;">
+          <h4>🌐 Embedded Links Scanned by URL ML Classifier (${data.embedded_urls_scanned.length})</h4>
+          <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+            ${data.embedded_urls_scanned.map(u => {
+              const uPhish = u.verdict === 'Phishing';
+              const uColor = uPhish ? '#ff4757' : '#2ed573';
+              return `
+                <div style="padding:12px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid ${uPhish ? 'rgba(255,71,87,0.3)' : 'rgba(46,213,115,0.3)'};">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-family:monospace; font-size:0.85rem; max-width:70%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#fff;">${esc(u.url)}</span>
+                    <span style="font-weight:800; font-size:0.75rem; color:${uColor};">${uPhish ? '🚨 PHISHING' : '✅ SAFE'} (${u.confidence}%)</span>
+                  </div>
+                  <div style="font-size:0.78rem; color:var(--muted);">Risk Score: ${u.risk_score}/100 • Flagged Factors: ${u.features_flagged && u.features_flagged.length > 0 ? esc(u.features_flagged.join(', ')) : 'None'}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    let flagsHTML = "";
+    if (data.red_flags && data.red_flags.length > 0) {
+      flagsHTML = data.red_flags.map(f => `
+        <div class="flag-item sev-${f.severity || 'high'}">
+          <div class="flag-title">
+            <span>${esc(f.category)}</span>
+            <span class="sev-pill ${(f.severity || 'high').toUpperCase()}">${(f.severity || 'high').toUpperCase()}</span>
+          </div>
+          <div class="flag-meta" style="margin-top:4px;">
+            <span>Description:</span> ${esc(f.desc)}
+          </div>
+        </div>
+      `).join('');
+    } else {
+      flagsHTML = '<div style="color:var(--muted); font-size:0.9rem; padding:12px; background:rgba(46,213,115,0.08); border-radius:8px;">✅ No psychological manipulation or threat triggers detected.</div>';
+    }
+
+    resultArea.innerHTML = `
+      <div class="result-header">
+        <div class="verdict-badge ${vBadgeClass}">
+          ${vIcon} VERDICT: ${esc(data.verdict.toUpperCase())}
+        </div>
+        <div class="score-pill">
+          Confidence: ${data.confidence}% • Risk: ${data.risk_score}/100
+        </div>
+      </div>
+
+      <div class="rcard" style="margin-top:16px;">
+        <h4>📊 Analysis Breakdown</h4>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:10px;">
+          <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; border:1px solid var(--line);">
+            <div style="font-size:0.75rem; color:var(--muted);">Lexical & NLP Risk</div>
+            <div style="font-size:1.2rem; font-weight:800; color:var(--cyan);">${data.lexical_score}/100</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; border:1px solid var(--line);">
+            <div style="font-size:0.75rem; color:var(--muted);">Security Header Risk</div>
+            <div style="font-size:1.2rem; font-weight:800; color:${data.header_score > 20 ? '#ff4757' : '#2ed573'};">${data.header_score}/100</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; border:1px solid var(--line);">
+            <div style="font-size:0.75rem; color:var(--muted);">Links Scanned by ML</div>
+            <div style="font-size:1.2rem; font-weight:800; color:#fff;">${data.urls_count} Links</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rcard" style="margin-top:16px;">
+        <h4>🚩 Matched Red Flags & Threat Triggers (${data.red_flags ? data.red_flags.length : 0})</h4>
+        <div class="flags-list" style="margin-top:10px;">
+          ${flagsHTML}
+        </div>
+      </div>
+
+      ${urlsHTML}
+
+      <div class="action-box" style="margin-top:18px;">
+        <div class="action-label">Recommended Action:</div>
+        <p>${isPhish ? '⚠️ QUARANTINE IMMEDIATELY. Do not click links, reply, or download attachments. Report to your SOC or security team.' : (isSuspicious ? '⚠️ VERIFY SENDER through an independent channel (phone or official app) before taking any action.' : '✅ EMAIL APPEARS SAFE. Always exercise standard cyber hygiene.')}</p>
+      </div>
+    `;
+
+  } catch (err) {
+    resultArea.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Failed to complete analysis. Ensure Python ML backend is running.</p>';
   }
 }
 

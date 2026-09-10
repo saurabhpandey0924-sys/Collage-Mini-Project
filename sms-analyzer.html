@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SMS Phishing Detector - CyberSec Platform</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    if (!localStorage.getItem('token')) window.location.href = 'login.html';
+  </script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-icon">🛡️</div>
+        <div>CyberSec <strong>Platform</strong></div>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home Dashboard</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container hero" style="padding-top: 40px;">
+    <h1>SMS Phishing (Smishing) Detector</h1>
+    <p>Paste suspicious text messages from fake banks or delivery companies to detect social engineering.</p>
+    
+    <div class="glass-card card-inner">
+      <div class="field">
+        <label>SMS Text Message</label>
+        <textarea id="smsBody" placeholder="e.g. Your package is delayed. Click here to update delivery details: http://fake-ups.com" style="min-height: 120px;"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="analyzeSMS()">Analyze SMS</button>
+      
+      <div id="resultArea" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.href = 'login.html';
+    }
+
+    async function analyzeSMS() {
+      const text = document.getElementById('smsBody').value.trim();
+      if (!text) return alert('Please enter an SMS to analyze.');
+
+      const resArea = document.getElementById('resultArea');
+      resArea.innerHTML = '<div class="loading-spinner"></div> Analyzing...';
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/analyze/ai', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ emailBody: 'Context: SMS Message. Text: ' + text })
+        });
+        
+        if (response.status === 401 || response.status === 403) {
+            logout();
+            return;
+        }
+
+        const data = await response.json();
+        
+        resArea.innerHTML = `
+          <div class="ai-result" style="margin-top: 10px;">
+            <div class="ai-result-head">🤖 AI Deep Analysis</div>
+            <p>${data.analysis}</p>
+          </div>
+        `;
+
+        // Save History
+        fetch('/api/history', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            module: 'SMS Analyzer',
+            target: text.substring(0, 30) + '...',
+            riskScore: data.analysis.toLowerCase().includes('scam') ? 85 : 30,
+            verdict: data.analysis.toLowerCase().includes('scam') ? 'MALICIOUS' : 'SAFE'
+          })
+        });
+
+      } catch (err) {
+        resArea.innerHTML = '<p style="color:red">Failed to analyze. Ensure backend is running.</p>';
+      }
+    }
+  </script>
+</body>
+</html>

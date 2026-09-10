@@ -1,0 +1,123 @@
+{
+  "dataset_size": 3500,
+  "train_samples": 2800,
+  "test_samples": 700,
+  "algorithms": {
+    "Random Forest": {
+      "accuracy": 99.57,
+      "precision": 99.43,
+      "recall": 99.71,
+      "f1_score": 99.57,
+      "confusion_matrix": [
+        [
+          348,
+          2
+        ],
+        [
+          1,
+          349
+        ]
+      ]
+    },
+    "Logistic Regression": {
+      "accuracy": 99.71,
+      "precision": 99.71,
+      "recall": 99.71,
+      "f1_score": 99.71,
+      "confusion_matrix": [
+        [
+          349,
+          1
+        ],
+        [
+          1,
+          349
+        ]
+      ]
+    },
+    "Decision Tree": {
+      "accuracy": 97.57,
+      "precision": 98.83,
+      "recall": 96.29,
+      "f1_score": 97.54,
+      "confusion_matrix": [
+        [
+          346,
+          4
+        ],
+        [
+          13,
+          337
+        ]
+      ]
+    }
+  },
+  "feature_importances": [
+    {
+      "feature": "Phishing Keyword Density",
+      "importance": 28.36
+    },
+    {
+      "feature": "Subdomain Depth",
+      "importance": 15.8
+    },
+    {
+      "feature": "URL Length",
+      "importance": 11.91
+    },
+    {
+      "feature": "Special Character Count",
+      "importance": 10.18
+    },
+    {
+      "feature": "Domain Shannon Entropy",
+      "importance": 9.49
+    },
+    {
+      "feature": "Numeric Digits in Domain",
+      "importance": 9.29
+    },
+    {
+      "feature": "URL Path Depth",
+      "importance": 3.15
+    },
+    {
+      "feature": "Suspicious TLD",
+      "importance": 2.99
+    },
+    {
+      "feature": "SSL / Protocol Security",
+      "importance": 2.0
+    },
+    {
+      "feature": "Prefix/Suffix '-' in Domain",
+      "importance": 1.63
+    },
+    {
+      "feature": "IP Address in URL",
+      "importance": 1.4
+    },
+    {
+      "feature": "HTTPS Token in Domain",
+      "importance": 1.3
+    },
+    {
+      "feature": "Shortening Service",
+      "importance": 0.85
+    },
+    {
+      "feature": "Double Slash Redirect",
+      "importance": 0.77
+    },
+    {
+      "feature": "Having '@' Symbol",
+      "importance": 0.55
+    },
+    {
+      "feature": "Non-Standard Port",
+      "importance": 0.32
+    }
+  ],
+  "best_algorithm": "Random Forest",
+  "best_accuracy": 99.71
+}

@@ -1,0 +1,23 @@
+{
+  "name": "collage-mini-project",
+  "version": "2.0.0",
+  "description": "Advanced Phishing Website & Email Detection Using Machine Learning",
+  "scripts": {
+    "start": "npm --prefix backend start",
+    "dev": "npm --prefix backend start",
+    "train": "npm --prefix backend run train",
+    "test": "npm --prefix backend test"
+  },
+  "keywords": [
+    "phishing-detection",
+    "machine-learning",
+    "random-forest",
+    "cybersecurity",
+    "email-security",
+    "url-scanner",
+    "scikit-learn",
+    "flask"
+  ],
+  "author": "Saurabh P Pandey",
+  "license": "MIT"
+}

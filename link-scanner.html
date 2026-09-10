@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL & Website Phishing Detector (Machine Learning) - PhishGuard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>if (!localStorage.getItem('token')) window.location.href = 'login.html';</script>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="brand-icon">🛡️</div>
+        <div>
+          PhishGuard <strong>ML Platform</strong>
+          <small>URL & Website Machine Learning Classifier</small>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home Dashboard</a>
+        <a href="link-scanner.html" style="color:var(--cyan); background:rgba(94,240,255,0.08); border-radius:8px;">URL ML Detector</a>
+        <a href="email-analyzer.html">Email Analyzer</a>
+        <a href="dashboard.html">Scan History</a>
+        <a href="#" onclick="logout()" style="color:#ff6b6b;">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container hero" style="padding-top: 36px;">
+    <div style="text-align:center; max-width:800px; margin:0 auto 28px;">
+      <div style="display:inline-block; padding:5px 14px; border-radius:999px; background:rgba(46,213,115,0.1); border:1px solid rgba(46,213,115,0.3); font-size:0.78rem; font-weight:700; color:#2ed573; margin-bottom:12px; text-transform:uppercase;">
+        🧠 Scikit-Learn Random Forest Classification
+      </div>
+      <h1 style="font-size:2.2rem; margin-bottom:10px;">URL & Website Phishing Detector</h1>
+      <p style="color:var(--muted); font-size:0.95rem;">
+        Extracts 16 real-time lexical, structural, and cryptographic features from any website URL and performs machine learning classification to detect zero-day phishing attacks.
+      </p>
+    </div>
+
+    <!-- URL INPUT CARD -->
+    <div class="glass-card card-inner" style="max-width:900px; margin:0 auto 30px;">
+      <div class="field">
+        <label style="font-weight:700; font-size:0.95rem; color:#fff;">Target Website URL to Analyze</label>
+        <div style="display:flex; gap:10px;">
+          <input type="text" id="urlInput" placeholder="https://example.com or http://paypal-security-update.tk/login.php" style="flex:1;" />
+          <button class="btn btn-primary" style="white-space:nowrap; padding:0 28px;" onclick="scanUrl()">
+            ⚡ Run ML Scan
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Sample Buttons -->
+      <div style="margin-top:14px;">
+        <span style="font-size:0.8rem; color:var(--muted); margin-right:8px;">Quick Test Scenarios:</span>
+        <button class="chip" style="cursor:pointer;" onclick="setSample('http://paypal-security-update.account-verify.tk/login.php')">
+          🚨 Paypal Phishing Sample
+        </button>
+        <button class="chip" style="cursor:pointer;" onclick="setSample('http://192.168.1.50/admin/secure-banking/login.html')">
+          🚨 IP Address Attack
+        </button>
+        <button class="chip" style="cursor:pointer;" onclick="setSample('http://microsoft-account-recovery-support.xyz/auth')">
+          🚨 Typosquatting Sample
+        </button>
+        <button class="chip" style="cursor:pointer;" onclick="setSample('https://www.github.com/explore')">
+          ✅ Legitimate Site
+        </button>
+      </div>
+
+      <div id="loadingArea" style="display:none; text-align:center; padding:30px 0;">
+        <div class="loading-spinner" style="margin:0 auto 12px;"></div>
+        <p style="color:var(--cyan); font-weight:600;">Extracting 16 URL features & executing Random Forest inference...</p>
+      </div>
+
+      <!-- RESULTS AREA -->
+      <div id="resultArea" style="display:none; margin-top:28px;">
+        <!-- Top Verdict Banner -->
+        <div id="verdictBanner" style="border-radius:14px; padding:22px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+          <div>
+            <div id="verdictBadge" style="font-size:1.4rem; font-weight:800; margin-bottom:6px;"></div>
+            <div id="modelDetails" style="font-size:0.85rem; opacity:0.85;"></div>
+          </div>
+          <div style="text-align:right;">
+            <div id="confidenceVal" style="font-size:2rem; font-weight:900;"></div>
+            <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; opacity:0.8;">ML Model Confidence</div>
+          </div>
+        </div>
+
+        <!-- Risk Meter -->
+        <div style="background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:24px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span style="font-size:0.88rem; font-weight:700;">Calculated Threat Risk Score:</span>
+            <span id="riskScoreText" style="font-weight:800; font-family:monospace;"></span>
+          </div>
+          <div style="height:10px; background:rgba(255,255,255,0.08); border-radius:999px; overflow:hidden;">
+            <div id="riskProgressBar" style="height:100%; width:0%; transition:width 0.6s ease;"></div>
+          </div>
+        </div>
+
+        <!-- Action Row -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h3 style="font-size:1.15rem; color:#fff;">Feature Extraction Engine (16 Factors Analyzed)</h3>
+          <button class="btn btn-secondary" style="font-size:0.8rem; padding:6px 14px;" onclick="openFeedbackModal()">
+            📢 Report Incorrect Result
+          </button>
+        </div>
+
+        <!-- 16 Feature Cards Grid -->
+        <div id="featuresList" class="features-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK / REPORT MODAL -->
+  <div id="feedbackModal" class="modal-backdrop">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeFeedbackModal()">&times;</button>
+      <h3 style="font-size:1.3rem; margin-bottom:8px;">📢 Report URL / False Positive</h3>
+      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:18px;">
+        Submit feedback to update our threat intelligence database and retrain the machine learning classifier.
+      </p>
+      <div class="field">
+        <label>URL</label>
+        <input type="text" id="modalUrl" readonly style="opacity:0.8;" />
+      </div>
+      <div class="field">
+        <label>Report Classification</label>
+        <select id="modalReportType" style="width:100%; padding:10px; border-radius:8px; background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--line);">
+          <option value="phishing_missed">Missed Phishing Site (Should be marked Phishing)</option>
+          <option value="false_positive">False Positive (Safe website incorrectly flagged)</option>
+          <option value="suspicious_site">Requires Manual Security Review</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Analyst Observation</label>
+        <textarea id="modalNotes" rows="3" placeholder="Provide context, e.g. legitimate university portal or credential spoofing attempt..."></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="submitModalReport()">Submit to Threat Engine</button>
+      <div id="modalMsg" style="margin-top:12px; font-size:0.85rem; text-align:center;"></div>
+    </div>
+  </div>
+
+  <footer style="margin-top: 60px;">
+    <div class="container footer-box">
+      <h3 style="color:#fff;">Advanced Phishing Website & Email Detection System</h3>
+      <p>College Mini Project • Machine Learning Architecture Powered by Python & Scikit-Learn</p>
+    </div>
+  </footer>
+
+  <script>
+    let currentScanData = null;
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.href = 'login.html';
+    }
+
+    function setSample(url) {
+      document.getElementById('urlInput').value = url;
+      scanUrl();
+    }
+
+    async function scanUrl() {
+      const url = document.getElementById('urlInput').value.trim();
+      if (!url) return alert('Please enter a website URL.');
+
+      document.getElementById('loadingArea').style.display = 'block';
+      document.getElementById('resultArea').style.display = 'none';
+
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/predict/url', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ url })
+        });
+
+        if (res.status === 401 || res.status === 403) return logout();
+
+        const data = await res.json();
+        currentScanData = data;
+        displayResults(data);
+
+      } catch (err) {
+        alert('Could not connect to the ML backend. Ensure python backend is running.');
+      } finally {
+        document.getElementById('loadingArea').style.display = 'none';
+      }
+    }
+
+    function displayResults(data) {
+      document.getElementById('resultArea').style.display = 'block';
+
+      const isPhishing = data.verdict === 'Phishing';
+      const banner = document.getElementById('verdictBanner');
+      const badge = document.getElementById('verdictBadge');
+      const bar = document.getElementById('riskProgressBar');
+      const riskText = document.getElementById('riskScoreText');
+
+      if (isPhishing) {
+        banner.style.background = 'linear-gradient(135deg, rgba(255, 71, 87, 0.25), rgba(255, 71, 87, 0.1))';
+        banner.style.border = '1px solid rgba(255, 71, 87, 0.4)';
+        badge.innerHTML = '🚨 MALICIOUS / PHISHING WEBSITE DETECTED';
+        badge.style.color = '#ff4757';
+        bar.style.background = 'linear-gradient(90deg, #ffab00, #ff4757)';
+      } else {
+        banner.style.background = 'linear-gradient(135deg, rgba(46, 213, 115, 0.2), rgba(46, 213, 115, 0.08))';
+        banner.style.border = '1px solid rgba(46, 213, 115, 0.35)';
+        badge.innerHTML = '✅ LEGITIMATE / SAFE WEBSITE VERIFIED';
+        badge.style.color = '#2ed573';
+        bar.style.background = 'linear-gradient(90deg, #5ef0ff, #2ed573)';
+      }
+
+      document.getElementById('modelDetails').innerText = `Model: ${data.algorithm_used} • Scanned Target: ${data.url}`;
+      document.getElementById('confidenceVal').innerText = `${data.confidence}%`;
+      riskText.innerText = `${data.risk_score} / 100 (${isPhishing ? 'HIGH THREAT' : 'CLEAN'})`;
+      bar.style.width = `${Math.max(5, data.risk_score)}%`;
+
+      // Render 16 Feature Cards
+      const container = document.getElementById('featuresList');
+      container.innerHTML = '';
+
+      (data.feature_details || []).forEach(f => {
+        let tagClass = 'tag-safe';
+        let statusText = 'SAFE';
+        if (f.status === 'danger') {
+          tagClass = 'tag-danger';
+          statusText = 'DANGER';
+        } else if (f.status === 'suspicious') {
+          tagClass = 'tag-suspicious';
+          statusText = 'SUSPICIOUS';
+        }
+
+        const card = document.createElement('div');
+        card.className = 'feature-card';
+        card.innerHTML = `
+          <div class="feature-head">
+            <div class="feature-title">${f.name}</div>
+            <span class="tag-status ${tagClass}">${statusText}</span>
+          </div>
+          <div class="feature-val">${f.val}</div>
+          <div class="feature-desc">${f.desc}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openFeedbackModal() {
+      if (!currentScanData) return;
+      document.getElementById('modalUrl').value = currentScanData.url;
+      document.getElementById('feedbackModal').style.display = 'flex';
+    }
+
+    function closeFeedbackModal() {
+      document.getElementById('feedbackModal').style.display = 'none';
+      document.getElementById('modalMsg').innerText = '';
+    }
+
+    async function submitModalReport() {
+      const target = document.getElementById('modalUrl').value;
+      const threat_type = document.getElementById('modalReportType').value;
+      const notes = document.getElementById('modalNotes').value;
+      const msg = document.getElementById('modalMsg');
+
+      msg.innerText = 'Submitting report...';
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ target, threat_type, notes })
+        });
+        const d = await res.json();
+        if (res.ok) {
+          msg.innerHTML = '<span style="color:#2ed573;">✅ ' + d.message + '</span>';
+          setTimeout(closeFeedbackModal, 1800);
+        } else {
+          msg.innerHTML = '<span style="color:#ff4757;">❌ ' + (d.error || 'Failed to submit.') + '</span>';
+        }
+      } catch (e) {
+        msg.innerHTML = '<span style="color:#ff4757;">Connection error.</span>';
+      }
+    }
+  </script>
+</body>
+</html>
