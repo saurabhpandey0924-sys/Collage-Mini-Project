@@ -24,6 +24,38 @@ CORS(app)
 # In-memory simple token store for session verification
 ACTIVE_TOKENS = {}
 
+def get_request_data(req):
+    """Safely extracts JSON or form data without raising 400 HTML exceptions."""
+    try:
+        data = req.get_json(silent=True)
+        if data is not None and isinstance(data, dict):
+            return data
+    except Exception:
+        pass
+    if req.form:
+        return req.form.to_dict()
+    try:
+        raw = req.get_data(as_text=True)
+        if raw:
+            parsed = json.loads(raw)
+            if isinstance(parsed, dict):
+                return parsed
+    except Exception:
+        pass
+    return {}
+
+@app.errorhandler(400)
+@app.errorhandler(404)
+@app.errorhandler(405)
+@app.errorhandler(500)
+def api_error_handler(e):
+    if request.path.startswith("/api/"):
+        msg = getattr(e, "description", str(e))
+        return jsonify({"error": msg}), getattr(e, "code", 500)
+    if hasattr(e, "code") and e.code == 404:
+        return send_from_directory(FRONTEND_DIR, "index.html")
+    return str(e), getattr(e, "code", 500)
+
 def get_user_from_request(req):
     auth = req.headers.get("Authorization", "")
     if auth.startswith("Bearer "):
@@ -44,12 +76,7 @@ def get_user_from_request(req):
 def index():
     return send_from_directory(FRONTEND_DIR, "index.html")
 
-@app.route("/<path:path>")
-def serve_static(path):
-    if os.path.exists(os.path.join(FRONTEND_DIR, path)):
-        return send_from_directory(FRONTEND_DIR, path)
-    # Default fallback to index
-    return send_from_directory(FRONTEND_DIR, "index.html")
+
 
 # ==============================================================================
 # AUTHENTICATION ENDPOINTS
@@ -57,7 +84,7 @@ def serve_static(path):
 
 @app.route("/api/auth/register", methods=["POST"])
 def auth_register():
-    data = request.get_json() or {}
+    data = get_request_data(request)
     username = data.get("username", "").strip()
     password = data.get("password", "").strip()
     email = data.get("email", "").strip()
@@ -79,7 +106,7 @@ def auth_register():
 
 @app.route("/api/auth/login", methods=["POST"])
 def auth_login():
-    data = request.get_json() or {}
+    data = get_request_data(request)
     username = data.get("username", "").strip()
     password = data.get("password", "").strip()
 
@@ -112,7 +139,7 @@ def predict_url_endpoint():
     Core ML Feature Extraction & Prediction Endpoint:
     Extracts 16 URL features and runs Random Forest classification model.
     """
-    data = request.get_json() or {}
+    data = get_request_data(request)
     url = data.get("url", "").strip()
     if not url:
         return jsonify({"error": "URL parameter is required."}), 400
@@ -138,7 +165,7 @@ def predict_url_endpoint():
 # Alias for backwards-compatibility with previous frontend /api/analyze/url
 @app.route("/api/analyze/url", methods=["POST"])
 def analyze_url_alias():
-    data = request.get_json() or {}
+    data = get_request_data(request)
     url = data.get("url", "").strip()
     if not url:
         return jsonify({"positives": 0, "total": 90, "message": "No URL provided."})
@@ -157,7 +184,7 @@ def predict_email_endpoint():
     Email Phishing Triage Endpoint:
     Combines NLP lexical analysis, header inspection, and embedded URL Machine Learning scans.
     """
-    data = request.get_json() or {}
+    data = get_request_data(request)
     sender = data.get("sender", "")
     reply_to = data.get("replyTo", "")
     subject = data.get("subject", "")
@@ -222,7 +249,7 @@ def download_dataset_endpoint():
 
 @app.route("/api/report", methods=["POST"])
 def submit_report():
-    data = request.get_json() or {}
+    data = get_request_data(request)
     target = data.get("target", "").strip()
     threat_type = data.get("threat_type", "phishing_missed")
     notes = data.get("notes", "").strip()
@@ -258,7 +285,7 @@ def history_endpoint():
         return jsonify({"message": "Scan audit history cleared successfully."})
 
     if request.method == "POST":
-        data = request.get_json() or {}
+        data = get_request_data(request)
         save_scan(
             user_id=user_id or 1,
             module=data.get("module", "generic"),
@@ -279,21 +306,21 @@ def history_endpoint():
 
 @app.route("/api/analyze/sms", methods=["POST"])
 def sms_analyze_endpoint():
-    data = request.get_json() or {}
+    data = get_request_data(request)
     text = data.get("text", "") or data.get("sms", "") or data.get("emailBody", "")
     result = analyze_sms_threat(text)
     return jsonify(result)
 
 @app.route("/api/analyze/code", methods=["POST"])
 def code_analyze_endpoint():
-    data = request.get_json() or {}
+    data = get_request_data(request)
     code = data.get("code", "") or data.get("emailBody", "")
     result = analyze_code_threat(code)
     return jsonify(result)
 
 @app.route("/api/analyze/breach", methods=["POST"])
 def breach_check():
-    data = request.get_json() or {}
+    data = get_request_data(request)
     email = data.get("email", "").strip()
     result = check_email_breach(email)
     return jsonify(result)
@@ -304,7 +331,7 @@ def ai_analyze():
     Intelligent dispatcher for backward compatibility with frontend modules.
     Dynamically routes to code analysis, SMS smishing detection, or threat intelligence.
     """
-    data = request.get_json() or {}
+    data = get_request_data(request)
     body = data.get("emailBody", "")
     
     if "Context: Analyzing Malicious Code" in body or "Code:\n" in body:
@@ -328,8 +355,22 @@ def ai_analyze():
 
 
 # ==============================================================================
+# STATIC FRONTEND ASSETS FALLBACK ROUTE (MUST BE AT BOTTOM)
+# ==============================================================================
+
+@app.route("/<path:path>")
+def serve_static(path):
+    if path.startswith("api/"):
+        return jsonify({"error": "API route not found"}), 404
+    full_path = os.path.join(FRONTEND_DIR, path)
+    if os.path.exists(full_path) and not os.path.isdir(full_path):
+        return send_from_directory(FRONTEND_DIR, path)
+    return send_from_directory(FRONTEND_DIR, "index.html")
+
+# ==============================================================================
 # MAIN ENTRYPOINT
 # ==============================================================================
+
 
 if __name__ == "__main__":
     env_file = os.path.join(os.path.dirname(__file__), ".env")

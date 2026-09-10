@@ -90,9 +90,15 @@
 
     document.getElementById('authForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const u = document.getElementById('username').value;
-      const p = document.getElementById('password').value;
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+      const path = isLogin ? '/api/auth/login' : '/api/auth/register';
+
+      // Auto-detect backend: if opened from LiveServer (port 5500) or file://, route to http://localhost:3000
+      const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '3000'))
+        ? 'http://localhost:3000'
+        : '';
+      const endpoint = API_BASE + path;
 
       try {
         const res = await fetch(endpoint, {
@@ -100,9 +106,16 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: u, password: p })
         });
-        const data = await res.json();
 
-        if (!res.ok) throw new Error(data.error || 'Request failed');
+        const contentType = res.headers.get('content-type') || '';
+        let data;
+        if (contentType.includes('application/json')) {
+          data = await res.json();
+        } else {
+          throw new Error('Please open the app at http://localhost:3000 (Backend server port)');
+        }
+
+        if (!res.ok) throw new Error(data.error || 'Authentication failed');
 
         if (isLogin) {
           localStorage.setItem('token', data.token);
@@ -121,6 +134,7 @@
         document.getElementById('errorMsg').innerText = err.message;
       }
     });
+
   </script>
 </body>
 </html>
