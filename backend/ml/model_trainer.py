@@ -1,6 +1,8 @@
 import os
 import json
+import csv
 import random
+import datetime
 import numpy as np
 
 # Lazy imports for scikit-learn / joblib so module is always importable
@@ -20,6 +22,7 @@ from .feature_extractor import extract_features
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_FILE = os.path.join(BASE_DIR, "phishing_rf_model.pkl")
 METRICS_FILE = os.path.join(BASE_DIR, "model_metrics.json")
+DATASET_CSV = os.path.join(BASE_DIR, "phishing_dataset_uci_3500.csv")
 
 FEATURE_NAMES = [
     "IP Address in URL",
@@ -39,6 +42,14 @@ FEATURE_NAMES = [
     "URL Path Depth",
     "Special Character Count"
 ]
+
+FEATURE_COLUMNS = [
+    "ip_address", "url_length", "shortener", "at_symbol", "double_slash",
+    "prefix_suffix", "subdomains", "ssl_protocol", "https_token", "non_standard_port",
+    "suspicious_tld", "shannon_entropy", "keyword_density", "digits_in_host",
+    "path_depth", "special_chars", "label"
+]
+
 
 def generate_synthetic_benchmark_dataset(n_samples=3500):
     """
@@ -102,17 +113,41 @@ def generate_synthetic_benchmark_dataset(n_samples=3500):
 
     return np.array(X), np.array(y)
 
-def train_and_save_models():
+def train_and_save_models(additional_samples=None):
     """
     Trains Random Forest, Logistic Regression, and Decision Tree.
-    Evaluates each model and saves the best model + evaluation metrics.
+    Evaluates each model, exports dataset to CSV, and saves the best model + evaluation metrics.
     """
     if not SKLEARN_AVAILABLE:
         print("[WARN] Scikit-learn not available yet; using heuristic model fallback.")
         return None
 
     print("[ML] Generating benchmark training dataset (3,500 samples)...")
-    X, y = generate_synthetic_benchmark_dataset(3500)
+    X_arr, y_arr = generate_synthetic_benchmark_dataset(3500)
+    X = X_arr.tolist()
+    y = y_arr.tolist()
+
+    # Append any user/community feedback samples if provided
+    if additional_samples and len(additional_samples) > 0:
+        for feat_vec, label in additional_samples:
+            X.append(feat_vec)
+            y.append(label)
+        print(f"[ML] Augmented training set with {len(additional_samples)} community feedback records.")
+
+    X = np.array(X)
+    y = np.array(y)
+
+    # Save physical CSV dataset for viva presentation & teacher inspection
+    try:
+        with open(DATASET_CSV, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(FEATURE_COLUMNS)
+            for i in range(len(X)):
+                row = list(X[i]) + [int(y[i])]
+                writer.writerow(row)
+        print(f"[ML] Benchmark dataset successfully written to {DATASET_CSV} ({len(X)} rows).")
+    except Exception as e:
+        print(f"[WARN] Failed to write dataset CSV: {e}")
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
@@ -169,7 +204,9 @@ def train_and_save_models():
         "algorithms": metrics,
         "feature_importances": feature_rankings,
         "best_algorithm": "Random Forest",
-        "best_accuracy": best_acc
+        "best_accuracy": best_acc,
+        "last_trained": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "dataset_file": os.path.basename(DATASET_CSV)
     }
 
     # Save best model to disk
@@ -180,6 +217,26 @@ def train_and_save_models():
     print(f"[ML] Model successfully trained & saved to {MODEL_FILE}")
     print(f"[ML] Metrics written to {METRICS_FILE}")
     return metadata
+
+def retrain_with_feedback(feedback_items):
+    """
+    Retrains the Machine Learning model using collected community threat reports.
+    feedback_items: list of dicts with keys 'target', 'threat_type'
+    """
+    additional_samples = []
+    for item in feedback_items:
+        target = item.get("target", "").strip()
+        if not target:
+            continue
+        try:
+            extracted = extract_features(target)
+            label = 1 if item.get("threat_type") == "phishing_missed" else 0
+            additional_samples.append((extracted["feature_vector"], label))
+        except Exception:
+            pass
+
+    return train_and_save_models(additional_samples=additional_samples)
+
 
 def get_model_info():
     """Returns stored metrics or trains model if not found."""

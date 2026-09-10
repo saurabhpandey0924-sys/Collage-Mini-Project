@@ -58,8 +58,11 @@
               <option value="url_ml">URL Machine Learning</option>
               <option value="email_nlp">Email NLP Analyzer</option>
             </select>
+            <button class="btn btn-outline" onclick="exportHistoryCSV()" style="font-size:0.82rem; padding:8px 14px;">📥 Export CSV</button>
+            <button class="btn btn-outline" onclick="clearScanHistory()" style="font-size:0.82rem; padding:8px 14px; border-color:rgba(255,71,87,0.4); color:#ff4757;">🗑️ Clear</button>
           </div>
         </div>
+
 
         <div style="overflow-x:auto;">
           <table style="width:100%; border-collapse:collapse;">
@@ -84,25 +87,43 @@
 
     <!-- TAB 2: ML MODEL EVALUATION -->
     <div id="tabModel" style="display:none;">
+      <!-- Continuous Learning Pipeline Banner -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; background:rgba(0,210,255,0.06); border:1px solid rgba(0,210,255,0.25); border-radius:12px; padding:16px 20px; margin-bottom:24px;">
+        <div>
+          <div style="font-weight:700; color:#fff; font-size:1rem; display:flex; align-items:center; gap:8px;">
+            <span>🔄 Continuous Learning & Retraining Pipeline</span>
+            <span style="font-size:0.75rem; background:rgba(46,213,115,0.15); color:#2ed573; border:1px solid rgba(46,213,115,0.3); padding:2px 8px; border-radius:999px;">Live Model Adaptation</span>
+          </div>
+          <div style="font-size:0.83rem; color:var(--muted); margin-top:3px;">
+            Retrains the Random Forest classifier by ingesting benchmark data augmented with newly verified community threat reports.
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <a href="/api/dataset/download" class="btn btn-outline" style="font-size:0.82rem; padding:8px 14px; text-decoration:none;">📥 Download Dataset (CSV)</a>
+          <button class="btn btn-primary" id="retrainBtn" onclick="retrainModelLive()" style="font-size:0.82rem; padding:8px 16px;">⚡ Retrain Model with Feedback</button>
+        </div>
+      </div>
+
       <!-- Key Model Metrics -->
       <div class="metrics-grid">
         <div class="metric-card">
-          <div class="metric-val" id="rfAcc">96.85%</div>
+          <div class="metric-val" id="rfAcc">99.57%</div>
           <div class="metric-label">Random Forest Accuracy</div>
         </div>
         <div class="metric-card">
-          <div class="metric-val" id="rfPrec">97.10%</div>
+          <div class="metric-val" id="rfPrec">99.57%</div>
           <div class="metric-label">Precision Score</div>
         </div>
         <div class="metric-card">
-          <div class="metric-val" id="rfRec">96.50%</div>
+          <div class="metric-val" id="rfRec">99.57%</div>
           <div class="metric-label">Recall Rate</div>
         </div>
         <div class="metric-card">
-          <div class="metric-val" id="rfF1">96.80%</div>
+          <div class="metric-val" id="rfF1">99.57%</div>
           <div class="metric-label">F1-Score</div>
         </div>
       </div>
+
 
       <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:20px; margin-bottom:28px;">
         <!-- Algorithm Comparison Table -->
@@ -159,6 +180,36 @@
             <li><strong>Model Serialization:</strong> Joblib Binary File (.pkl)</li>
             <li><strong>Inference Speed:</strong> ~12ms per URL scan</li>
           </ul>
+        </div>
+      </div>
+
+      <!-- Visual Confusion Matrix (2x2 Grid) -->
+      <div class="glass-card card-inner" style="margin-bottom:28px;">
+        <h3 style="margin-bottom:10px; font-size:1.1rem; color:#fff;">🎯 Visual Confusion Matrix (Validation Test Set: 700 Samples)</h3>
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:18px;">
+          Evaluates how accurately the Random Forest model differentiates between Legitimate (Class: 0) and Phishing (Class: 1) on unseen test samples.
+        </p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:640px; margin:0 auto;">
+          <div style="background:rgba(46,213,115,0.12); border:1px solid rgba(46,213,115,0.35); border-radius:12px; padding:18px; text-align:center;">
+            <div style="font-size:0.75rem; text-transform:uppercase; color:#2ed573; font-weight:800; letter-spacing:0.5px;">True Negatives (TN)</div>
+            <div style="font-size:2.2rem; font-weight:800; color:#fff; margin:6px 0;" id="cmTN">348</div>
+            <div style="font-size:0.8rem; color:#c0d8ff;">Legitimate sites correctly classified as Safe</div>
+          </div>
+          <div style="background:rgba(255,71,87,0.1); border:1px solid rgba(255,71,87,0.35); border-radius:12px; padding:18px; text-align:center;">
+            <div style="font-size:0.75rem; text-transform:uppercase; color:#ff4757; font-weight:800; letter-spacing:0.5px;">False Positives (FP)</div>
+            <div style="font-size:2.2rem; font-weight:800; color:#fff; margin:6px 0;" id="cmFP">2</div>
+            <div style="font-size:0.8rem; color:#c0d8ff;">Safe sites falsely flagged as Phishing (0.57%)</div>
+          </div>
+          <div style="background:rgba(255,165,2,0.1); border:1px solid rgba(255,165,2,0.35); border-radius:12px; padding:18px; text-align:center;">
+            <div style="font-size:0.75rem; text-transform:uppercase; color:#ffa502; font-weight:800; letter-spacing:0.5px;">False Negatives (FN)</div>
+            <div style="font-size:2.2rem; font-weight:800; color:#fff; margin:6px 0;" id="cmFN">1</div>
+            <div style="font-size:0.8rem; color:#c0d8ff;">Phishing sites missed by classifier (0.28%)</div>
+          </div>
+          <div style="background:rgba(0,210,255,0.12); border:1px solid rgba(0,210,255,0.35); border-radius:12px; padding:18px; text-align:center;">
+            <div style="font-size:0.75rem; text-transform:uppercase; color:var(--cyan); font-weight:800; letter-spacing:0.5px;">True Positives (TP)</div>
+            <div style="font-size:2.2rem; font-weight:800; color:#fff; margin:6px 0;" id="cmTP">349</div>
+            <div style="font-size:0.8rem; color:#c0d8ff;">Phishing attacks accurately detected (99.7%)</div>
+          </div>
         </div>
       </div>
 
@@ -320,11 +371,19 @@
           document.getElementById('rfPrec').innerText = rf.precision + '%';
           document.getElementById('rfRec').innerText = rf.recall + '%';
           document.getElementById('rfF1').innerText = rf.f1_score + '%';
+
+          if (rf.confusion_matrix && rf.confusion_matrix.length === 2) {
+            document.getElementById('cmTN').innerText = rf.confusion_matrix[0][0];
+            document.getElementById('cmFP').innerText = rf.confusion_matrix[0][1];
+            document.getElementById('cmFN').innerText = rf.confusion_matrix[1][0];
+            document.getElementById('cmTP').innerText = rf.confusion_matrix[1][1];
+          }
         }
 
         if (data.dataset_size) {
           document.getElementById('dsSize').innerText = data.dataset_size.toLocaleString();
         }
+
 
         // Render Feature Importances
         if (data.feature_importances) {
@@ -349,7 +408,72 @@
       }
     }
 
+    async function retrainModelLive() {
+      const btn = document.getElementById('retrainBtn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="loading-spinner" style="width:14px; height:14px; display:inline-block; vertical-align:middle; margin-right:6px;"></span> Retraining Model...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/model/retrain', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert(data.message || 'Model successfully retrained with feedback!');
+          await loadModelInfo();
+        } else {
+          alert('Retraining failed: ' + (data.error || 'Server error'));
+        }
+      } catch (err) {
+        alert('Retraining request failed. Ensure backend is running.');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    async function clearScanHistory() {
+      if (!confirm('Are you sure you want to clear your scan audit history?')) return;
+      try {
+        const res = await fetch('/api/history', {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        if (res.ok) {
+          rawScans = [];
+          renderHistoryTable([]);
+          alert('Scan audit history cleared.');
+        }
+      } catch (err) {
+        alert('Failed to clear scan history.');
+      }
+    }
+
+    function exportHistoryCSV() {
+      if (!rawScans || rawScans.length === 0) return alert('No scan records to export.');
+      let csv = 'ID,Target,Module,Verdict,Confidence,RiskScore,Timestamp\n';
+      rawScans.forEach(s => {
+        csv += `"${s.id}","${(s.target || '').replace(/"/g, '""')}","${s.module}","${s.verdict}","${s.confidence}%","${s.riskScore}","${s.timestamp}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('hidden', '');
+      a.setAttribute('href', url);
+      a.setAttribute('download', `phishing_scans_${Date.now()}.csv`);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
     async function loadReports() {
+
       try {
         const res = await fetch('/api/reports');
         if (!res.ok) return;

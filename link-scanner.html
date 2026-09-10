@@ -108,9 +108,27 @@
 
         <!-- 16 Feature Cards Grid -->
         <div id="featuresList" class="features-list"></div>
+
+        <!-- Mathematical Feature Vector Toggle (Viva & Examiner Proof) -->
+        <div style="margin-top:24px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px;">
+          <details>
+            <summary style="cursor:pointer; font-weight:700; color:var(--cyan); font-size:0.9rem;">
+              🔬 Inspect Mathematical 16-Feature Input Vector (Passed to Random Forest Model)
+            </summary>
+            <div style="margin-top:12px; font-size:0.82rem; color:#c0d8ff;">
+              <p style="margin-bottom:8px; color:var(--muted);">
+                Normalized encoding: <span style="color:#2ed573;">-1 = Legitimate</span>, <span style="color:#ffa502;">0 = Suspicious</span>, <span style="color:#ff4757;">1 = Phishing</span>
+              </p>
+              <div id="vectorDisplay" style="font-family:monospace; background:rgba(0,0,0,0.5); padding:12px; border-radius:8px; border:1px solid rgba(0,210,255,0.2); word-break:break-all; color:#5ef0ff;">
+                [Waiting for scan...]
+              </div>
+            </div>
+          </details>
+        </div>
       </div>
     </div>
   </div>
+
 
   <!-- FEEDBACK / REPORT MODAL -->
   <div id="feedbackModal" class="modal-backdrop">
@@ -248,7 +266,14 @@
         `;
         container.appendChild(card);
       });
+
+      // Display Raw Feature Vector
+      const vecEl = document.getElementById('vectorDisplay');
+      if (vecEl && data.feature_vector) {
+        vecEl.innerText = `X_vector = [\n  ${data.feature_vector.join(', ')}\n]`;
+      }
     }
+
 
     function openFeedbackModal() {
       if (!currentScanData) return;

@@ -1,12 +1,12 @@
 {
-  "dataset_size": 3500,
-  "train_samples": 2800,
-  "test_samples": 700,
+  "dataset_size": 3502,
+  "train_samples": 2801,
+  "test_samples": 701,
   "algorithms": {
     "Random Forest": {
       "accuracy": 99.57,
       "precision": 99.43,
-      "recall": 99.71,
+      "recall": 99.72,
       "f1_score": 99.57,
       "confusion_matrix": [
         [
@@ -15,15 +15,15 @@
         ],
         [
           1,
-          349
+          350
         ]
       ]
     },
     "Logistic Regression": {
       "accuracy": 99.71,
-      "precision": 99.71,
-      "recall": 99.71,
-      "f1_score": 99.71,
+      "precision": 99.72,
+      "recall": 99.72,
+      "f1_score": 99.72,
       "confusion_matrix": [
         [
           349,
@@ -31,15 +31,15 @@
         ],
         [
           1,
-          349
+          350
         ]
       ]
     },
     "Decision Tree": {
       "accuracy": 97.57,
       "precision": 98.83,
-      "recall": 96.29,
-      "f1_score": 97.54,
+      "recall": 96.3,
+      "f1_score": 97.55,
       "confusion_matrix": [
         [
           346,
@@ -47,7 +47,7 @@
         ],
         [
           13,
-          337
+          338
         ]
       ]
     }
@@ -55,69 +55,71 @@
   "feature_importances": [
     {
       "feature": "Phishing Keyword Density",
-      "importance": 28.36
+      "importance": 29.42
     },
     {
       "feature": "Subdomain Depth",
-      "importance": 15.8
+      "importance": 15.24
     },
     {
       "feature": "URL Length",
-      "importance": 11.91
-    },
-    {
-      "feature": "Special Character Count",
-      "importance": 10.18
-    },
-    {
-      "feature": "Domain Shannon Entropy",
-      "importance": 9.49
+      "importance": 11.83
     },
     {
       "feature": "Numeric Digits in Domain",
-      "importance": 9.29
+      "importance": 10.48
+    },
+    {
+      "feature": "Special Character Count",
+      "importance": 9.27
+    },
+    {
+      "feature": "Domain Shannon Entropy",
+      "importance": 8.67
     },
     {
       "feature": "URL Path Depth",
-      "importance": 3.15
+      "importance": 3.29
     },
     {
       "feature": "Suspicious TLD",
-      "importance": 2.99
-    },
-    {
-      "feature": "SSL / Protocol Security",
-      "importance": 2.0
+      "importance": 3.2
     },
     {
       "feature": "Prefix/Suffix '-' in Domain",
-      "importance": 1.63
+      "importance": 1.9
     },
     {
-      "feature": "IP Address in URL",
-      "importance": 1.4
+      "feature": "SSL / Protocol Security",
+      "importance": 1.71
     },
     {
       "feature": "HTTPS Token in Domain",
-      "importance": 1.3
+      "importance": 1.19
+    },
+    {
+      "feature": "IP Address in URL",
+      "importance": 1.07
     },
     {
       "feature": "Shortening Service",
-      "importance": 0.85
+      "importance": 0.91
     },
     {
       "feature": "Double Slash Redirect",
-      "importance": 0.77
+      "importance": 0.84
     },
     {
       "feature": "Having '@' Symbol",
-      "importance": 0.55
+      "importance": 0.58
     },
     {
       "feature": "Non-Standard Port",
-      "importance": 0.32
+      "importance": 0.39
     }
   ],
   "best_algorithm": "Random Forest",
-  "best_accuracy": 99.71
+  "best_accuracy": 99.71,
+  "last_trained": "2026-09-10 23:32:20",
+  "dataset_file": "phishing_dataset_uci_3500.csv"
 }

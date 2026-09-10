@@ -69,10 +69,14 @@
 
         const data = await response.json();
         
+        const vColor = data.verdict && data.verdict.includes('MALICIOUS') ? '#ff4757' : (data.verdict && data.verdict.includes('SUSPICIOUS') ? '#ffa502' : '#2ed573');
         resArea.innerHTML = `
-          <div class="ai-result" style="margin-top: 10px;">
-            <div class="ai-result-head">🤖 AI Deep Analysis</div>
-            <p>${data.analysis}</p>
+          <div class="ai-result" style="margin-top: 15px; border-left: 4px solid ${vColor};">
+            <div class="ai-result-head" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>📱 Smishing & NLP Analysis Result</span>
+              <span style="font-size:0.85rem; font-weight:800; color:${vColor};">${data.verdict || 'ANALYZED'}</span>
+            </div>
+            <div style="margin-top:10px; white-space:pre-wrap; line-height:1.6; font-size:0.9rem; color:#e0e8ff;">${data.analysis}</div>
           </div>
         `;
 
@@ -84,12 +88,14 @@
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            module: 'SMS Analyzer',
-            target: text.substring(0, 30) + '...',
-            riskScore: data.analysis.toLowerCase().includes('scam') ? 85 : 30,
-            verdict: data.analysis.toLowerCase().includes('scam') ? 'MALICIOUS' : 'SAFE'
+            module: 'SMS Smishing Analyzer',
+            target: text.substring(0, 45) + (text.length > 45 ? '...' : ''),
+            riskScore: data.risk_score !== undefined ? data.risk_score : 40,
+            verdict: data.verdict || 'ANALYZED',
+            confidence: data.confidence || 90.0
           })
         });
+
 
       } catch (err) {
         resArea.innerHTML = '<p style="color:red">Failed to analyze. Ensure backend is running.</p>';

@@ -67,6 +67,19 @@
         const vIcon = data.breached ? '🚨' : '✅';
         const vText = data.breached ? 'COMPROMISED' : 'SAFE';
 
+        let breachListHTML = '';
+        if (data.breaches && data.breaches.length > 0) {
+          breachListHTML = '<div style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">' + data.breaches.map(b => `
+            <div style="background:rgba(255,71,87,0.08); border:1px solid rgba(255,71,87,0.25); border-radius:8px; padding:12px;">
+              <div style="display:flex; justify-content:space-between; font-weight:700; color:#fff;">
+                <span>${b.name} (${b.year})</span>
+                <span style="color:#ff4757; font-size:0.75rem; text-transform:uppercase;">${b.severity} Severity</span>
+              </div>
+              <div style="font-size:0.82rem; color:var(--muted); margin-top:4px;"><strong>Leaked Fields:</strong> ${b.data_leaked}</div>
+            </div>
+          `).join('') + '</div>';
+        }
+
         resArea.innerHTML = `
           <div class="result-header" style="margin-top: 15px;">
             <div class="verdict-badge ${vClass}">${vIcon} VERDICT: ${vText}</div>
@@ -74,8 +87,11 @@
           <div class="rcard" style="margin-top: 15px;">
             <h4>Analysis</h4>
             <p>${data.message}</p>
+            ${breachListHTML}
+            ${data.remediation ? `<div style="margin-top:14px; padding:10px; background:rgba(0,210,255,0.08); border-radius:8px; font-size:0.85rem; color:#5ef0ff;">🛡️ <strong>Recommended Action:</strong> ${data.remediation}</div>` : ''}
           </div>
         `;
+
 
         fetch('/api/history', {
           method: 'POST',

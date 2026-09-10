@@ -64,10 +64,14 @@
 
         const data = await response.json();
 
+        const vColor = data.verdict && data.verdict.includes('MALICIOUS') ? '#ff4757' : (data.verdict && data.verdict.includes('SUSPICIOUS') ? '#ffa502' : '#2ed573');
         resArea.innerHTML = `
-          <div class="ai-result" style="margin-top: 15px;">
-            <div class="ai-result-head">🤖 AI Code Analysis</div>
-            <p>${data.analysis}</p>
+          <div class="ai-result" style="margin-top: 15px; border-left: 4px solid ${vColor};">
+            <div class="ai-result-head" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>💻 Static Script & Deobfuscation Findings</span>
+              <span style="font-size:0.85rem; font-weight:800; color:${vColor};">${data.verdict || 'ANALYZED'}</span>
+            </div>
+            <div style="margin-top:10px; white-space:pre-wrap; line-height:1.6; font-size:0.88rem; color:#e0e8ff;">${data.analysis}</div>
           </div>
         `;
 
@@ -78,12 +82,14 @@
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            module: 'Code Analyzer',
-            target: code.substring(0, 30) + '...',
-            riskScore: data.analysis.toLowerCase().includes('malicious') ? 100 : 20,
-            verdict: data.analysis.toLowerCase().includes('malicious') ? 'MALICIOUS' : 'SUSPICIOUS'
+            module: 'Code & Script Analyzer',
+            target: code.substring(0, 45) + (code.length > 45 ? '...' : ''),
+            riskScore: data.risk_score !== undefined ? data.risk_score : 50,
+            verdict: data.verdict || 'ANALYZED',
+            confidence: data.confidence || 90.0
           })
         });
+
 
       } catch (err) {
         resArea.innerHTML = '<p style="color:red">Failed to analyze. Ensure backend is running.</p>';

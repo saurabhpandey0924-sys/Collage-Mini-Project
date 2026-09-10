@@ -185,3 +185,15 @@ def get_all_reports(limit=50):
     rows = cursor.fetchall()
     conn.close()
     return [dict(r) for r in rows]
+
+def clear_user_scans(user_id=None):
+    conn = get_db()
+    cursor = conn.cursor()
+    if user_id:
+        cursor.execute("DELETE FROM scans WHERE user_id = ?", (user_id,))
+    else:
+        cursor.execute("DELETE FROM scans")
+    conn.commit()
+    conn.close()
+    return True
+

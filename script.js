@@ -278,7 +278,7 @@ function analyzeEmail(sender, replyto, subject, body) {
 // ============================================================
 async function getAIAnalysis(sender, replyto, subject, body, flags) {
   try {
-    const response = await fetch('http://localhost:3000/api/analyze/ai', {
+    const response = await fetch('/api/analyze/ai', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -345,7 +345,7 @@ function renderResult(report, aiText) {
     aiBlock = `<div class="ai-result"><div class="ai-result-head"><span class="loading-spinner"></span> Requesting AI deep analysis...</div></div>`;
   } else if (aiText) {
     aiBlock = `<div class="ai-result">
-      <div class="ai-result-head">🤖 Claude AI — Threat Intelligence Report</div>
+      <div class="ai-result-head">🛡️ CyberSec Threat Intelligence & NLP Report</div>
       <p>${esc(aiText)}</p>
     </div>`;
   }
