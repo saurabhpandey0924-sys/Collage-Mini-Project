@@ -21,177 +21,9 @@ function analyzeHeaders(headers) {
 }
 
 // ============================================================
-// RED FLAG DEFINITIONS — 20+ CATEGORIES
+// ENTERPRISE HEURISTICS (Processed securely on neural backend)
 // ============================================================
-const RED_FLAGS = {
-  "RF01 — Sender/Display Name Mismatch": {
-    weight: 20,
-    keywords: ["noreply@", "no-reply@", "donotreply@"],
-    desc: "Display name claims a trusted brand but From address does not match official domain.",
-    check: (sender, replyto, subject, body) => {
-      const big = ["microsoft","google","apple","amazon","paypal","netflix","facebook","instagram","linkedin","twitter","x.com","dropbox","docusign","chase","wells fargo","bank of america","irs","fedex","ups","dhl"];
-      const sLow = sender.toLowerCase();
-      const bodyLow = body.toLowerCase();
-      for (const brand of big) {
-        if ((sLow.includes(brand) || bodyLow.includes(brand)) && !sLow.includes(`@${brand}.com`)) {
-          // Make sure it actually has an @ (it's an email domain)
-          if (sLow.includes("@") && !sLow.includes(`@${brand}.`)) {
-            return { hit: true, keyword: brand, loc: "sender" };
-          }
-        }
-      }
-      return { hit: false };
-    }
-  },
-  "RF02 — Homoglyph / Typosquatting Domain": {
-    weight: 25,
-    keywords: [],
-    desc: "Domain uses character substitution or subtle misspelling to impersonate a trusted brand.",
-    check: (sender) => {
-      const patterns = [
-        /micros[o0]ft/i, /paypa[l1]/i, /g[o0][o0]gle/i, /arnazon/i, /amaz[o0]n/i,
-        /app[l1]e/i, /faceb[o0][o0]k/i, /netf[l1]ix/i, /[il1]nstagram/i,
-        /tw[il1]tter/i, /1inkedin/i, /llnkedin/i, /linkedln/i,
-        /rnicrosoft/i, /micorsoft/i, /rnicrosofft/i, /rn[il1]crosoft/i,
-        /goog1e/i, /go0gle/i, /ch[a4]se/i, /[i1]rs\.gov/i,
-        /d[o0]cusign/i, /dr[o0]pb[o0]x/i,
-      ];
-      const sLow = sender.toLowerCase();
-      for (const p of patterns) {
-        const m = sLow.match(p);
-        if (m) return { hit: true, keyword: m[0], loc: "sender domain" };
-      }
-      return { hit: false };
-    }
-  },
-  "RF03 — Suspicious Domain Pattern": {
-    weight: 18,
-    keywords: [],
-    desc: "Domain uses deceptive naming conventions (login-, secure-, -update, -alert, -verify).",
-    check: (sender) => {
-      const bad = ["secure-login","login-update","account-verify","account-alert","logins-","support-desk","helpdesk-","-secure.","-login.","-update.","-verify.","-alerts.","-account.",".xyz","account-","verify-","login-","update-","reset-","auth-","-authentication","portal-","billing-","renew-","renewal-","invoice-"];
-      const sLow = sender.toLowerCase();
-      for (const p of bad) {
-        if (sLow.includes(p)) return { hit: true, keyword: p, loc: "sender domain" };
-      }
-      return { hit: false };
-    }
-  },
-  "RF04 — Free Email for Corporate Claim": {
-    weight: 16,
-    keywords: [],
-    desc: "Sender uses a free email provider (Gmail, Yahoo, etc.) while claiming to be from a corporation.",
-    check: (sender, replyto, subject, body) => {
-      const free = ["@gmail.com","@yahoo.com","@hotmail.com","@outlook.com","@protonmail.com","@icloud.com","@aol.com","@ymail.com","@mail.com","@zoho.com","@tutanota.com","@gmx.com","@live.com"];
-      const sLow = sender.toLowerCase();
-      const bodyLow = body.toLowerCase();
-      const corpoClues = ["ceo","director","manager","hr department","it department","helpdesk","admin","support team","billing","payroll","finance","legal","compliance","bank","irs","tax"];
-      for (const f of free) {
-        if (sLow.includes(f)) {
-          for (const c of corpoClues) {
-            if (sLow.includes(c) || bodyLow.includes(c)) return { hit: true, keyword: f, loc: "sender" };
-          }
-        }
-      }
-      return { hit: false };
-    }
-  },
-  "RF05 — Reply-To Mismatch": {
-    weight: 22,
-    keywords: [],
-    desc: "Reply-To address is different from the From address — a classic email spoofing technique.",
-    check: (sender, replyto) => {
-      if (!replyto || replyto.trim() === "") return { hit: false };
-      const getHost = (e) => { const m = e.match(/@([^>]+)/); return m ? m[1].toLowerCase().trim() : ""; };
-      const fromHost = getHost(sender);
-      const replyHost = getHost(replyto);
-      if (fromHost && replyHost && fromHost !== replyHost) {
-        return { hit: true, keyword: `${fromHost} → ${replyHost}`, loc: "reply-to header" };
-      }
-      return { hit: false };
-    }
-  },
-  "RF06 — Urgency / Fear Trigger": {
-    weight: 12,
-    keywords: ["urgent","immediately","account will be closed","expires in 24","act now","last warning","immediate action required","your account has been","final notice","within 24 hours","deadline","limited time","time sensitive","respond immediately","failure to","will be terminated","will be suspended","you must","you are required","deadline is","past due","overdue","24-hour","48-hour"],
-    desc: "Email uses urgency or fear-of-loss language to pressure the victim into acting without thinking."
-  },
-  "RF07 — Request for Sensitive Information": {
-    weight: 20,
-    keywords: ["mfa code","otp","one-time password","your password","update billing","confirm your details","verify your account","enter your credentials","payment detail","ssn","social security","date of birth","mother's maiden","credit card","card number","cvv","pin number","bank account","routing number","taxpayer id","ein","wire transfer","account number","login credentials","username and password","reset your password","verify your identity","security question"],
-    desc: "Email directly requests credentials, financial data, or personally identifiable information."
-  },
-  "RF08 — Activity / Sign-in Alert": {
-    weight: 14,
-    keywords: ["unusual sign-in","account locked","suspicious activity","security alert","login attempt","verify now","someone tried to sign in","unauthorized access","account has been compromised","we noticed","new device","sign-in blocked","your account was accessed","failed login","multiple failed","account flagged","temporary lock"],
-    desc: "Fake security alert claiming account compromise to trigger panic and credential submission."
-  },
-  "RF09 — MFA Fatigue / Push Bombing": {
-    weight: 18,
-    keywords: ["approve sign-in","mfa request","authentication request","confirm login","approve this request","authenticator app","push notification","authentication code","approve the request","deny if not you","was this you","did you request","approve or deny","tap approve","mfa approval"],
-    desc: "Social engineering targeting MFA approval flows to gain unauthorized access even with 2FA enabled."
-  },
-  "RF10 — TOAD / Security Callback Scam": {
-    weight: 20,
-    keywords: ["call 1-800","call us immediately","call this number","subscription charge","call to cancel","call our support","contact us by phone","call our team","toll-free","helpline","call within","please call","contact support at","reach us at","phone number","customer care number","call now","call immediately","contact immediately"],
-    desc: "Telephone-Oriented Attack Delivery (TOAD) — forces victim to call a fraudulent phone number."
-  },
-  "RF11 — QR Code Redirect": {
-    weight: 16,
-    keywords: ["scan the qr","scan to unlock","scan to verify","qr code","scan this code","qr below","use your camera","scan with phone","quishing","scan to access","scan to login","scan to confirm","qr to reset"],
-    desc: "QR code (quishing) is used to redirect to phishing URLs that bypass link scanning tools."
-  },
-  "RF12 — BEC / Executive Impersonation": {
-    weight: 24,
-    keywords: ["wire transfer","transfer funds","lost my wallet","urgent wire","immediate transfer","ceo","cfo","chief executive","chief financial","vp of finance","president request","on behalf of ceo","executive team","board of directors","confidential request","personal request","outside of normal","dont discuss","do not involve","direct transfer","internal request","bypass approval","expedite payment","send funds","purchase gift cards","itunes gift","google play gift","amazon gift card","gift card transfer"],
-    desc: "Business Email Compromise (BEC) — impersonates executive to authorize fraudulent wire transfers or gift card purchases."
-  },
-  "RF13 — Dangerous Attachment": {
-    weight: 22,
-    keywords: [".exe",".bat",".js",".vbs",".ps1",".iso",".img",".scr",".com",".cmd",".msi",".hta",".jse",".wsf",".reg",".lnk",".docm",".xlsm",".pptm",".jar",".apk",".deb","macro enabled","enable content","enable macros","click enable","enable editing","download and run","run the attached","open the attached","execute","installer","setup.exe","update.exe","patch.exe"],
-    desc: "Email references or attaches malware-capable file formats that can execute malicious code."
-  },
-  "RF14 — Fake Forwarded / Thread Hijacking": {
-    weight: 10,
-    keywords: ["fw:","fwd:","forwarded message","re: re: re:","---------- forwarded","original message","begin forwarded","from the desk of","as discussed","following up on our call","as we discussed","per our previous"],
-    desc: "Message mimics a forwarded chain or hijacks an existing email thread to appear legitimate."
-  },
-  "RF15 — Unusual Secrecy / Bypass Request": {
-    weight: 20,
-    keywords: ["do not discuss","strictly confidential","bypass procedure","bypass standard","do not tell","keep this secret","between us","do not forward","do not share","don't tell","personal and confidential","eyes only","need discretion","confidential matter","outside normal channels","unusual request","unusual process","one time exception","make an exception","skip the usual"],
-    desc: "Attacker asks victim to bypass security procedures or keep the request secret to prevent detection."
-  },
-  "RF16 — Lookalike URL / Shortened Link": {
-    weight: 18,
-    keywords: ["bit.ly","tinyurl","goo.gl","t.co","ow.ly","is.gd","buff.ly","rebrand.ly","shorturl","tiny.cc","cutt.ly","clck.ru","click here","verify here","update here","login here","confirm here","click the link","click below","access here","submit here","open this link","click the button","visit the link","follow the link","link below","http://","clicking here"],
-    desc: "Email uses URL shorteners or deceptively-worded anchor text to hide malicious destinations."
-  },
-  "RF17 — Vishing / Pretexting Language": {
-    weight: 14,
-    keywords: ["we tried to reach you","we've been trying","as per our last attempt","left a voicemail","left you a message","attempted to contact","reach you by phone","regarding your case","regarding your account","case number","reference number","ticket number","your case is pending","your file","your application","your claim","your refund","you are owed","you have a refund","unclaimed funds","unclaimed package","pending delivery","package held"],
-    desc: "Voice phishing (vishing) pretexts or fake case/package scenarios to add false legitimacy."
-  },
-  "RF18 — Geo / IP Anomaly Claims": {
-    weight: 12,
-    keywords: ["sign-in from","logged in from","new location","unusual location","different country","ip address","russia","china","nigeria","new ip","foreign login","unrecognized device","new browser","login from different","not recognize this device","if this wasn't you","wasn't you"],
-    desc: "Fake geo-location or device alerts designed to trigger immediate fear and credential re-entry."
-  },
-  "RF19 — Deepfake / AI-Generated Claim": {
-    weight: 16,
-    keywords: ["listen to my voice message","voice message attached","voice note","audio message","video verification","video call required","ai-generated","deepfake","voice cloning","voice authentication","i recorded","listen to this"],
-    desc: "Emerging AI-powered phishing using fake voice messages, deepfake video, or AI-generated content."
-  },
-  "RF20 — Tax / Government Impersonation": {
-    weight: 22,
-    keywords: ["irs","internal revenue","income tax","tax refund","tax notice","tax alert","income tax department","tax department","government notice","court order","legal action","arrest warrant","summons","federal bureau","fbi","cia","department of justice","social security administration","ssa","medicare","medicaid","penalty","fine","legal action will","warrant has been","sheriff","law enforcement","police"],
-    desc: "Impersonates tax authorities or government agencies to invoke legal fear and compliance."
-  },
-  "RF21 — Password Reset / Account Recovery": {
-    weight: 16,
-    keywords: ["password reset","reset your password","forgot password","account recovery","recover your account","temporary password","new password","password expired","password will expire","change your password","update your password","reset link","recovery link","click to reset","request a reset","verify to reset"],
-    desc: "Fake password reset emails attempt to harvest credentials through a fake reset flow."
-  },
-};
+const RED_FLAGS = {};
 
 // ============================================================
 // WEIGHTED SCORING
@@ -420,8 +252,8 @@ async function runAnalysis() {
   resultArea.scrollIntoView({ behavior: "smooth", block: "start" });
 
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch('/api/predict/email', {
+    const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '3000')) ? 'http://localhost:3000' : '';
+    const response = await fetch(API_BASE + '/api/predict/email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -491,6 +323,31 @@ async function runAnalysis() {
       flagsHTML = '<div style="color:var(--muted); font-size:0.9rem; padding:12px; background:rgba(46,213,115,0.08); border-radius:8px;">✅ No psychological manipulation or threat triggers detected.</div>';
     }
 
+    let dnsHTML = "";
+    if (data.dns_intelligence && data.dns_intelligence.valid !== undefined) {
+      const d = data.dns_intelligence;
+      dnsHTML = `
+        <div class="rcard" style="margin-top:16px;">
+          <h4>🌐 Live DNS & Mail Cryptography Inspection</h4>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-top:10px;">
+            <div style="padding:10px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid var(--line);">
+              <div style="font-size:0.75rem; color:var(--muted);">Mail Exchanger (MX)</div>
+              <div style="font-size:0.9rem; font-weight:700; color:${d.has_mx ? '#2ed573' : '#ff4757'};">${d.has_mx ? '✅ Active Mail Servers' : '❌ No MX Records Found'}</div>
+            </div>
+            <div style="padding:10px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid var(--line);">
+              <div style="font-size:0.75rem; color:var(--muted);">SPF Authorization</div>
+              <div style="font-size:0.9rem; font-weight:700; color:${d.spf ? '#2ed573' : '#ffa502'};">${d.spf ? '✅ SPF Configured' : '⚠️ Missing SPF Record'}</div>
+            </div>
+            <div style="padding:10px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid var(--line);">
+              <div style="font-size:0.75rem; color:var(--muted);">DMARC Policy Enforcement</div>
+              <div style="font-size:0.9rem; font-weight:700; color:${d.dmarc ? '#2ed573' : '#ffa502'};">${d.dmarc ? '✅ DMARC Policy Active' : '⚠️ No DMARC Policy'}</div>
+            </div>
+          </div>
+          <div style="margin-top:8px; font-size:0.8rem; color:var(--cyan);">Status: ${esc(d.dns_status || 'Verified')}</div>
+        </div>
+      `;
+    }
+
     resultArea.innerHTML = `
       <div class="result-header">
         <div class="verdict-badge ${vBadgeClass}">
@@ -505,12 +362,12 @@ async function runAnalysis() {
         <h4>📊 Analysis Breakdown</h4>
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:10px;">
           <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; border:1px solid var(--line);">
-            <div style="font-size:0.75rem; color:var(--muted);">Lexical & NLP Risk</div>
-            <div style="font-size:1.2rem; font-weight:800; color:var(--cyan);">${data.lexical_score}/100</div>
+            <div style="font-size:0.75rem; color:var(--muted);">Semantic & NLP Risk</div>
+            <div style="font-size:1.2rem; font-weight:800; color:var(--cyan);">${data.risk_score}/100</div>
           </div>
           <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; border:1px solid var(--line);">
             <div style="font-size:0.75rem; color:var(--muted);">Security Header Risk</div>
-            <div style="font-size:1.2rem; font-weight:800; color:${data.header_score > 20 ? '#ff4757' : '#2ed573'};">${data.header_score}/100</div>
+            <div style="font-size:1.2rem; font-weight:800; color:${data.header_score > 20 ? '#ff4757' : '#2ed573'};">${data.header_score || 0}/100</div>
           </div>
           <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; border:1px solid var(--line);">
             <div style="font-size:0.75rem; color:var(--muted);">Links Scanned by ML</div>
@@ -520,12 +377,13 @@ async function runAnalysis() {
       </div>
 
       <div class="rcard" style="margin-top:16px;">
-        <h4>🚩 Matched Red Flags & Threat Triggers (${data.red_flags ? data.red_flags.length : 0})</h4>
+        <h4>🛡️ Identified Threat Indicators & Behavioral Signatures (${data.red_flags ? data.red_flags.length : 0})</h4>
         <div class="flags-list" style="margin-top:10px;">
           ${flagsHTML}
         </div>
       </div>
 
+      ${dnsHTML}
       ${urlsHTML}
 
       <div class="action-box" style="margin-top:18px;">
@@ -639,24 +497,7 @@ function renderSamples() {
   `).join("");
 }
 
-// ============================================================
-// RENDER RULES
-// ============================================================
-function renderRules() {
-  const entries = Object.entries(RED_FLAGS);
-  document.getElementById("rulesGrid").innerHTML = entries.map(([name, rule]) => `
-    <div class="rule-card">
-      <div class="rule-num">${name.split("—")[0].trim()}</div>
-      <h3>${name.split("—")[1]?.trim() || name}</h3>
-      <p>${esc(rule.desc)}</p>
-      <div class="chips">
-        ${(rule.keywords || []).slice(0, 5).map(k => `<span class="chip">${esc(k)}</span>`).join("")}
-        ${(rule.keywords || []).length > 5 ? `<span class="chip">+${(rule.keywords||[]).length - 5} more</span>` : ""}
-        ${rule.check && !(rule.keywords||[]).length ? `<span class="chip">🔍 Pattern-based detection</span>` : ""}
-      </div>
-    </div>
-  `).join("");
-}
+
 
 // ============================================================
 // EDUCATION CARDS
@@ -684,5 +525,4 @@ function renderEdu() {
 
 // INIT
 renderSamples();
-renderRules();
 renderEdu();

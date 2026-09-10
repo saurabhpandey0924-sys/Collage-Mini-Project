@@ -167,15 +167,70 @@
   </div>
 </section>
 
-<!-- RED FLAGS -->
-<section id="rules">
+<!-- ENTERPRISE DEFENSE MATRIX (Replaces leaked internal rules) -->
+<section id="defense-matrix">
   <div class="container">
     <div class="sec-head">
-      <div class="sec-tag">🚩 Detection Rules</div>
-      <h2>20+ Phishing Red Flag Categories</h2>
-      <p>Every email is scanned against these categories. Each rule carries a weighted severity score contributing to the final risk verdict.</p>
+      <div class="sec-tag">🛡️ Enterprise Architecture</div>
+      <h2>Multi-Tier Neural Threat Defense Matrix</h2>
+      <p>Enterprise email traffic is continuously validated across six zero-trust security layers, combining live cryptographic DNS analysis, ML URL sandboxing, and neural linguistic triage.</p>
     </div>
-    <div class="rules-grid" id="rulesGrid"></div>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rule-num">LAYER 01</div>
+        <h3>Neural Semantic & NLP Triage</h3>
+        <p>Advanced natural language processing identifies social engineering vectors, artificial urgency, and executive impersonation attempts in real time.</p>
+        <div class="chips">
+          <span class="chip">🛡️ Zero-Day Linguistic Modeling</span>
+          <span class="chip">🧠 Behavioral Context Analysis</span>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">LAYER 02</div>
+        <h3>Live DNS Cryptographic Verification</h3>
+        <p>Real-time DNS-over-HTTPS (DoH) queries validate sender Mail Exchanger (MX) configuration, SPF authorization, and DMARC enforcement policies.</p>
+        <div class="chips">
+          <span class="chip">🌐 Live SPF / DMARC Inspection</span>
+          <span class="chip">🔒 MX Record Validation</span>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">LAYER 03</div>
+        <h3>Multi-URL ML Sandboxing</h3>
+        <p>Embedded hyperlinks are extracted and evaluated against 16 structural features using trained Random Forest classifiers to intercept zero-day redirects.</p>
+        <div class="chips">
+          <span class="chip">⚡ Random Forest Classifier</span>
+          <span class="chip">🔍 16+ Feature Extraction</span>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">LAYER 04</div>
+        <h3>Cryptographic Header Auditing</h3>
+        <p>Raw RFC-822 email headers are parsed for DKIM digital signature integrity, envelope hops, and transit tampering indicators.</p>
+        <div class="chips">
+          <span class="chip">🔑 DKIM Signature Validation</span>
+          <span class="chip">📡 Envelope Routing Audit</span>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">LAYER 05</div>
+        <h3>Return-Path & BEC Protection</h3>
+        <p>Correlates From, Reply-To, and Return-Path envelopes to detect domain mismatches and Business Email Compromise (BEC) wire redirection.</p>
+        <div class="chips">
+          <span class="chip">💼 BEC Impersonation Shield</span>
+          <span class="chip">🔄 Reply-To Alignment</span>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">LAYER 06</div>
+        <h3>Brand Authority Verification</h3>
+        <p>Cross-references sender credentials against enterprise institutional databases to detect spoofing of financial, tech, and government institutions.</p>
+        <div class="chips">
+          <span class="chip">🏛️ Institutional Spoof Guard</span>
+          <span class="chip">⚡ Zero-Trust Verification</span>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -195,11 +250,11 @@
 <footer>
   <div class="container">
     <div class="footer-box">
-      <h3>🛡️ Saurabh — Advanced Phishing Detection Suite</h3>
+      <h3>🛡️ PhishGuard — Enterprise Threat Defense Platform</h3>
       <p>
-        A cybersecurity project demonstrating professional phishing triage, 20+ red flag detection,
-        AI-powered threat analysis, suspicious domain recognition, and analyst-grade reporting.
-        Built for educational and portfolio use.
+        Next-generation enterprise cybersecurity suite delivering real-time phishing detection,
+        cryptographic mail integrity verification, multi-URL machine learning sandboxing,
+        and zero-trust threat intelligence. Engineered for high-throughput security operations.
       </p>
     </div>
   </div>

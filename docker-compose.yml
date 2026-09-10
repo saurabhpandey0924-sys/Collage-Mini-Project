@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: phishguard-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgresql://phishuser:phishpassword@db:5432/phishguard_db
+      - REDIS_URL=redis://cache:6379/0
+      - JWT_SECRET=phishguard_production_secret_key_change_in_prod_2026
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    volumes:
+      - ./backend/ml:/app/backend/ml
+
+  db:
+    image: postgres:16-alpine
+    container_name: phishguard-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: phishuser
+      POSTGRES_PASSWORD: phishpassword
+      POSTGRES_DB: phishguard_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U phishuser -d phishguard_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  cache:
+    image: redis:7-alpine
+    container_name: phishguard-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
