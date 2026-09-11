@@ -79,7 +79,7 @@
       box-shadow: 0 0 20px rgba(78,158,255,0.2);
     }
     .brand small { display: block; color: var(--muted); font-size: 0.72rem; font-weight: 500; margin-top: 1px; }
-    .nav-links { display: flex; gap: 4px; }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
     .nav-links a {
       color: var(--muted); text-decoration: none; font-size: 0.9rem;
       padding: 9px 14px; border-radius: 10px; transition: 0.2s;
@@ -560,7 +560,7 @@
        THEME ENGINE: LIGHT & DARK MODE SUPPORT
        ========================================================================== */
 
-    /* Toggle Button */
+    /* Toggle Button (Legacy Support) */
     .theme-toggle-btn {
       display: inline-flex;
       align-items: center;
@@ -595,6 +595,139 @@
     }
     .theme-toggle-btn:hover .theme-icon {
       transform: rotate(18deg) scale(1.18);
+    }
+
+    /* Theme Switch Wrapper Capsule */
+    .theme-switch-wrapper {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .theme-switch-wrapper:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(94, 240, 255, 0.2);
+    }
+    .theme-switch-icon {
+      font-size: 0.82rem;
+      user-select: none;
+      line-height: 1;
+    }
+
+    [data-theme="light"] .theme-switch-wrapper {
+      background: #ffffff;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    }
+    [data-theme="light"] .theme-switch-wrapper:hover {
+      background: #f8fafc;
+      border-color: #0356c5;
+      box-shadow: 0 4px 14px rgba(3, 86, 197, 0.12);
+    }
+
+    /* From Uiverse.io by Shoh2008 */ 
+    .checkbox-wrapper-5 .check {
+      --size: 26px;
+      position: relative;
+      background: linear-gradient(90deg, #f19af3, #f099b5);
+      line-height: 0;
+      perspective: 400px;
+      font-size: var(--size);
+    }
+
+    .checkbox-wrapper-5 .check input[type="checkbox"],
+      .checkbox-wrapper-5 .check label,
+      .checkbox-wrapper-5 .check label::before,
+      .checkbox-wrapper-5 .check label::after,
+      .checkbox-wrapper-5 .check {
+      appearance: none;
+      display: inline-block;
+      border-radius: var(--size);
+      border: 0;
+      transition: .35s ease-in-out;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+
+    .checkbox-wrapper-5 .check label {
+      width: calc(2.2 * var(--size));
+      height: var(--size);
+      background: #d7d7d7;
+      overflow: hidden;
+    }
+
+    .checkbox-wrapper-5 .check input[type="checkbox"] {
+      position: absolute;
+      z-index: 1;
+      width: calc(.8 * var(--size));
+      height: calc(.8 * var(--size));
+      top: calc(.1 * var(--size));
+      left: calc(.1 * var(--size));
+      background: linear-gradient(45deg, #dedede, #ffffff);
+      box-shadow: 0 6px 7px rgba(0,0,0,0.3);
+      outline: none;
+      margin: 0;
+    }
+
+    .checkbox-wrapper-5 .check input[type="checkbox"]:checked {
+      left: calc(1.3 * var(--size));
+    }
+
+    .checkbox-wrapper-5 .check input[type="checkbox"]:checked + label {
+      background: transparent;
+    }
+
+    .checkbox-wrapper-5 .check label::before,
+      .checkbox-wrapper-5 .check label::after {
+      content: "· ·";
+      position: absolute;
+      overflow: hidden;
+      left: calc(.15 * var(--size));
+      top: calc(.5 * var(--size));
+      height: var(--size);
+      letter-spacing: calc(-0.04 * var(--size));
+      color: #9b9b9b;
+      font-family: "Times New Roman", serif;
+      z-index: 2;
+      font-size: calc(.6 * var(--size));
+      border-radius: 0;
+      transform-origin: 0 0 calc(-0.5 * var(--size));
+      backface-visibility: hidden;
+      pointer-events: none;
+    }
+
+    .checkbox-wrapper-5 .check label::after {
+      content: "●";
+      top: calc(.65 * var(--size));
+      left: calc(.2 * var(--size));
+      height: calc(.1 * var(--size));
+      width: calc(.35 * var(--size));
+      font-size: calc(.2 * var(--size));
+      transform-origin: 0 0 calc(-0.4 * var(--size));
+      pointer-events: none;
+    }
+
+    .checkbox-wrapper-5 .check input[type="checkbox"]:checked + label::before,
+      .checkbox-wrapper-5 .check input[type="checkbox"]:checked + label::after {
+      left: calc(1.55 * var(--size));
+      top: calc(.4 * var(--size));
+      line-height: calc(.1 * var(--size));
+      transform: rotateY(360deg);
+    }
+
+    .checkbox-wrapper-5 .check input[type="checkbox"]:checked + label::after {
+      height: calc(.16 * var(--size));
+      top: calc(.55 * var(--size));
+      left: calc(1.6 * var(--size));
+      font-size: calc(.6 * var(--size));
+      line-height: 0;
     }
 
     /* Light Theme Palette & Overrides */

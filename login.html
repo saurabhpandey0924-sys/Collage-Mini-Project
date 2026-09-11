@@ -47,9 +47,16 @@
 <body>
   <!-- Floating Theme Toggle -->
   <div style="position: fixed; top: 20px; right: 24px; z-index: 1000;">
-    <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
-      <span class="theme-icon">🌙</span> <span class="theme-text">Dark</span>
-    </button>
+    <div class="theme-switch-wrapper" style="--size: 30px;" title="Toggle Dark / Light Mode">
+      <span class="theme-switch-icon" style="font-size: 0.95rem;">🌙</span>
+      <div class="checkbox-wrapper-5">
+        <div class="check">
+          <input id="themeToggleCheck" class="theme-toggle-checkbox" type="checkbox" onchange="toggleTheme(event)">
+          <label for="themeToggleCheck"></label>
+        </div>
+      </div>
+      <span class="theme-switch-icon" style="font-size: 0.95rem;">☀️</span>
+    </div>
   </div>
 
   <div class="auth-container">
