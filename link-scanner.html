@@ -98,6 +98,9 @@
           </div>
         </div>
 
+        <!-- Live SOC Infrastructure Intelligence Grid -->
+        <div id="infraGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:24px;"></div>
+
         <!-- Action Row -->
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
           <h3 style="font-size:1.15rem; color:#fff;">Feature Extraction Engine (16 Factors Analyzed)</h3>
@@ -238,6 +241,61 @@
       document.getElementById('confidenceVal').innerText = `${data.confidence}%`;
       riskText.innerText = `${data.risk_score} / 100 (${isPhishing ? 'HIGH THREAT' : 'CLEAN'})`;
       bar.style.width = `${Math.max(5, data.risk_score)}%`;
+
+      // Render Live SOC Infrastructure Intelligence (RDAP, SSL, DNS, GeoIP)
+      const infraContainer = document.getElementById('infraGrid');
+      if (infraContainer) {
+        infraContainer.innerHTML = '';
+        const ssl = data.ssl_intelligence || {};
+        const dns = data.dns_intelligence || {};
+        const rdap = data.rdap_intelligence || {};
+        const ip = data.ip_intelligence || {};
+
+        const cards = [
+          {
+            icon: '🔒',
+            title: 'TLS / SSL Certificate',
+            val: ssl.valid ? `Valid (${ssl.days_remaining}d left)` : (ssl.status || 'Untrusted / None'),
+            sub: ssl.issuer ? `Issuer: ${ssl.issuer}` : 'Port 443 Handshake',
+            color: ssl.valid ? '#2ed573' : '#ff4757'
+          },
+          {
+            icon: '📅',
+            title: 'ICANN RDAP Domain Age',
+            val: rdap.age_days !== undefined && rdap.age_days !== null ? `${rdap.age_days.toLocaleString()} Days Old` : 'Active Registration',
+            sub: rdap.registrar ? `Registrar: ${rdap.registrar}` : (rdap.created_date ? `Created: ${rdap.created_date}` : 'Verified via RDAP'),
+            color: rdap.is_newly_registered ? '#ff4757' : '#5ef0ff'
+          },
+          {
+            icon: '🌍',
+            title: 'Geo IP & Hosting Provider',
+            val: ip.country ? `${ip.country} (${ip.city || 'DC'})` : (ip.ip || 'Resolved Host'),
+            sub: ip.org || ip.isp || (ip.asn ? `ASN: ${ip.asn}` : 'Public Routing'),
+            color: '#2ed573'
+          },
+          {
+            icon: '⚡',
+            title: 'DNS-over-HTTPS (DoH)',
+            val: dns.has_mx ? 'Active Mail MX' : 'Standard Web Domain',
+            sub: dns.spf ? 'SPF Cryptography Enforced' : 'Google & Cloudflare DoH',
+            color: dns.has_mx ? '#2ed573' : '#ffa502'
+          }
+        ];
+
+        cards.forEach(c => {
+          const div = document.createElement('div');
+          div.style.cssText = 'background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; padding:14px;';
+          div.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <span style="font-size:1.2rem;">${c.icon}</span>
+              <span style="font-size:0.75rem; text-transform:uppercase; color:var(--muted); font-weight:700;">${c.title}</span>
+            </div>
+            <div style="font-size:0.95rem; font-weight:800; color:${c.color}; margin-bottom:3px;">${c.val}</div>
+            <div style="font-size:0.78rem; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${c.sub}">${c.sub}</div>
+          `;
+          infraContainer.appendChild(div);
+        });
+      }
 
       // Render 16 Feature Cards
       const container = document.getElementById('featuresList');

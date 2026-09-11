@@ -12,7 +12,8 @@ from flask_cors import CORS
 
 from database import (
     init_db, register_user, authenticate_user,
-    save_scan, get_user_scans, clear_user_scans, save_threat_report, get_all_reports
+    save_scan, get_user_scans, clear_user_scans, save_threat_report, get_all_reports,
+    get_dashboard_stats
 )
 from ml.model_trainer import (
     predict_url, get_model_info, train_and_save_models, retrain_with_feedback, DATASET_CSV
@@ -21,7 +22,8 @@ from ml.email_detector import analyze_email
 from ml.threat_analyzers import analyze_sms_threat, analyze_code_threat, check_email_breach
 from ml.threat_apis import (
     live_dns_lookup, live_ssl_inspect, check_hibp_pwned,
-    query_virustotal_url, query_google_safebrowsing, extract_domain
+    query_virustotal_url, query_google_safebrowsing, extract_domain,
+    query_rdap_domain_intel, query_ip_intel
 )
 from ml.cache_manager import scan_cache
 
@@ -250,18 +252,39 @@ def predict_url_endpoint():
     # 3. Live Native TLS/SSL Certificate Inspection
     ssl_info = live_ssl_inspect(domain) if domain else {"status": "Unknown", "valid": False}
 
-    # 4. Live DNS Record Verification
+    # 4. Live DNS Record Verification (Google + Cloudflare Dual DoH)
     dns_info = live_dns_lookup(domain) if domain else {"valid": False}
 
-    # 5. External Threat Feeds (if configured)
+    # 5. ICANN RDAP Domain Registration & Age Verification
+    rdap_info = query_rdap_domain_intel(domain) if domain else {"active": False}
+
+    # 6. Public IP Geolocation & ASN Hosting Intelligence
+    ip_info = query_ip_intel(domain) if domain else {"active": False}
+
+    # 7. External Threat Feeds (if configured)
     vt_intel = query_virustotal_url(url)
     gsb_intel = query_google_safebrowsing(url)
+
+    # Zero-Day Threat Elevation if Domain < 30 Days Old
+    if rdap_info.get("is_newly_registered"):
+        ml_result["risk_score"] = min(100, ml_result["risk_score"] + 25)
+        if ml_result["risk_score"] >= 50:
+            ml_result["verdict"] = "Phishing"
+        ml_result["feature_details"].append({
+            "name": "Zero-Day Infrastructure (RDAP)",
+            "val": f"Age: {rdap_info.get('age_days')} days (Created {rdap_info.get('created_date')})",
+            "status": "danger",
+            "risk": 25,
+            "desc": "Domain was registered less than 30 days ago. Attackers commonly provision ephemeral domains to bypass static URL filters."
+        })
 
     # Enriched Threat Intelligence Object
     enriched_result = {
         **ml_result,
         "ssl_intelligence": ssl_info,
         "dns_intelligence": dns_info,
+        "rdap_intelligence": rdap_info,
+        "ip_intelligence": ip_info,
         "external_feeds": {
             "virustotal": vt_intel,
             "google_safebrowsing": gsb_intel
@@ -415,6 +438,11 @@ def history_endpoint():
 
     scans = get_user_scans(user_id=user_id, limit=50)
     return jsonify({"scans": scans})
+
+@app.route("/api/stats", methods=["GET"])
+def dashboard_stats_endpoint():
+    stats = get_dashboard_stats()
+    return jsonify(stats)
 
 # ==============================================================================
 # SECURITY ANALYZER ENDPOINTS (SMS, CODE, DATA BREACH WITH LIVE HIBP API)

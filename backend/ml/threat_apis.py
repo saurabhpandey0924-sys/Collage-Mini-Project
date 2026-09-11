@@ -36,14 +36,47 @@ def extract_domain(target):
         return ""
 
 
+def query_doh_record(name, record_type):
+    """
+    Queries DNS-over-HTTPS with dual redundancy:
+    Primary: Google Public DNS (https://dns.google/resolve)
+    Fallback: Cloudflare DNS (https://cloudflare-dns.com/dns-query)
+    """
+    # 1. Primary: Google DoH
+    try:
+        url = f"https://dns.google/resolve?name={name}&type={record_type}"
+        resp = requests.get(url, timeout=2.5)
+        if resp.status_code == 200:
+            data = resp.json()
+            if "Answer" in data and len(data["Answer"]) > 0:
+                return [ans.get("data", "") for ans in data["Answer"]], True
+            return [], True
+    except Exception:
+        pass
+
+    # 2. Secondary Fallback: Cloudflare 1.1.1.1 DoH
+    try:
+        cf_url = f"https://cloudflare-dns.com/dns-query?name={name}&type={record_type}"
+        headers = {"accept": "application/dns-json", "User-Agent": "PhishGuard-Threat-Intel/2.0"}
+        cf_resp = requests.get(cf_url, headers=headers, timeout=2.5)
+        if cf_resp.status_code == 200:
+            data = cf_resp.json()
+            if "Answer" in data and len(data["Answer"]) > 0:
+                return [ans.get("data", "") for ans in data["Answer"]], True
+            return [], True
+    except Exception:
+        pass
+
+    return [], False
+
 def live_dns_lookup(domain):
     """
-    Performs real-time DNS-over-HTTPS (DoH) inspection via Google/Cloudflare.
+    Performs real-time DNS-over-HTTPS (DoH) inspection with Google & Cloudflare dual-redundancy.
     Validates live MX, SPF, and DMARC cryptographic email records.
     Requires NO external API key.
     """
     if not domain:
-        return {"valid": False, "has_mx": False, "spf": None, "dmarc": None}
+        return {"valid": False, "has_mx": False, "spf": None, "dmarc": None, "dns_status": "No Domain"}
 
     cache_key = f"dns:{domain}"
     cached = scan_cache.get(cache_key)
@@ -55,54 +88,150 @@ def live_dns_lookup(domain):
         "has_mx": False,
         "spf": None,
         "dmarc": None,
-        "dns_status": "Clean"
+        "dns_status": "Clean",
+        "resolver": "Google / Cloudflare Dual DoH"
+    }
+
+    # 1. MX Records
+    mx_answers, mx_ok = query_doh_record(domain, "MX")
+    if mx_ok:
+        result["valid"] = True
+        result["has_mx"] = len(mx_answers) > 0
+
+    # 2. SPF TXT Records
+    txt_answers, txt_ok = query_doh_record(domain, "TXT")
+    if txt_ok:
+        result["valid"] = True
+        for ans in txt_answers:
+            if "v=spf1" in ans:
+                result["spf"] = ans.replace('"', '')
+                break
+
+    # 3. DMARC Records
+    dmarc_answers, dmarc_ok = query_doh_record(f"_dmarc.{domain}", "TXT")
+    if dmarc_ok:
+        for ans in dmarc_answers:
+            if "v=DMARC1" in ans:
+                result["dmarc"] = ans.replace('"', '')
+                break
+
+    if not result["has_mx"] and not result["spf"]:
+        result["dns_status"] = "No Active Mail Servers Configured"
+    elif result["spf"] and result["dmarc"]:
+        result["dns_status"] = "Fully Authenticated (SPF + DMARC Enforced)"
+    else:
+        result["dns_status"] = "Partially Configured"
+
+    scan_cache.set(cache_key, result, ttl_seconds=43200) # 12h cache
+    return result
+
+def query_rdap_domain_intel(domain):
+    """
+    Queries ICANN official RDAP (Registration Data Access Protocol) for domain registration age.
+    Detects zero-day infrastructure (< 30 days old).
+    Requires NO external API key.
+    """
+    if not domain:
+        return {"active": False}
+
+    cache_key = f"rdap:{domain}"
+    cached = scan_cache.get(cache_key)
+    if cached:
+        return cached
+
+    result = {
+        "active": False,
+        "age_days": None,
+        "created_date": None,
+        "expires_date": None,
+        "registrar": None,
+        "is_newly_registered": False
     }
 
     try:
-        # 1. Query MX Records
-        mx_url = f"https://dns.google/resolve?name={domain}&type=MX"
-        resp = requests.get(mx_url, timeout=3.0)
+        url = f"https://rdap.org/domain/{domain}"
+        headers = {"User-Agent": "PhishGuard-SOC-Intel/2.0", "Accept": "application/rdap+json, application/json"}
+        resp = requests.get(url, headers=headers, timeout=3.5)
         if resp.status_code == 200:
             data = resp.json()
-            if "Answer" in data and len(data["Answer"]) > 0:
-                result["has_mx"] = True
-                result["valid"] = True
+            result["active"] = True
+            events = data.get("events", [])
+            for ev in events:
+                action = ev.get("eventAction", "")
+                dt_str = ev.get("eventDate", "")
+                if action == "registration" and dt_str:
+                    try:
+                        clean_dt = dt_str.split("T")[0]
+                        reg_dt = datetime.strptime(clean_dt, "%Y-%m-%d")
+                        age = (datetime.utcnow() - reg_dt).days
+                        result["age_days"] = age
+                        result["created_date"] = clean_dt
+                        result["is_newly_registered"] = (age < 30)
+                    except Exception:
+                        pass
+                elif action == "expiration" and dt_str:
+                    result["expires_date"] = dt_str.split("T")[0]
 
-        # 2. Query SPF TXT Records
-        txt_url = f"https://dns.google/resolve?name={domain}&type=TXT"
-        resp_txt = requests.get(txt_url, timeout=3.0)
-        if resp_txt.status_code == 200:
-            data_txt = resp_txt.json()
-            if "Answer" in data_txt:
-                for ans in data_txt["Answer"]:
-                    val = ans.get("data", "")
-                    if "v=spf1" in val:
-                        result["spf"] = val.replace('"', '')
-                        result["valid"] = True
-                        break
+            # Extract registrar
+            entities = data.get("entities", [])
+            for ent in entities:
+                roles = ent.get("roles", [])
+                if "registrar" in roles:
+                    vcard = ent.get("vcardArray", [])
+                    if len(vcard) > 1:
+                        for prop in vcard[1]:
+                            if prop[0] == "fn":
+                                result["registrar"] = prop[3]
+                                break
+                    break
 
-        # 3. Query DMARC Records (_dmarc.domain)
-        dmarc_url = f"https://dns.google/resolve?name=_dmarc.{domain}&type=TXT"
-        resp_dmarc = requests.get(dmarc_url, timeout=3.0)
-        if resp_dmarc.status_code == 200:
-            data_dmarc = resp_dmarc.json()
-            if "Answer" in data_dmarc:
-                for ans in data_dmarc["Answer"]:
-                    val = ans.get("data", "")
-                    if "v=DMARC1" in val:
-                        result["dmarc"] = val.replace('"', '')
-                        break
+            scan_cache.set(cache_key, result, ttl_seconds=86400) # 24h cache
+    except Exception:
+        pass
 
-        if not result["has_mx"] and not result["spf"]:
-            result["dns_status"] = "No Active Mail Servers Configured"
-        elif result["spf"] and result["dmarc"]:
-            result["dns_status"] = "Fully Authenticated (SPF + DMARC Enforced)"
-        else:
-            result["dns_status"] = "Partially Configured"
+    return result
 
-        scan_cache.set(cache_key, result, ttl_seconds=43200) # 12h cache
-    except Exception as e:
-        result["dns_status"] = f"Lookup Timeout: {str(e)[:40]}"
+def query_ip_intel(domain):
+    """
+    Queries public IP geolocation & Autonomous System (ASN) threat intelligence.
+    Identifies hosting provider, country, city, and infrastructure ASN.
+    """
+    if not domain:
+        return {"active": False}
+
+    cache_key = f"ip_intel:{domain}"
+    cached = scan_cache.get(cache_key)
+    if cached:
+        return cached
+
+    result = {
+        "active": False,
+        "ip": None,
+        "country": None,
+        "city": None,
+        "isp": None,
+        "org": None,
+        "asn": None
+    }
+
+    try:
+        url = f"http://ip-api.com/json/{domain}?fields=status,country,city,isp,org,as,query"
+        resp = requests.get(url, timeout=3.0)
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get("status") == "success":
+                result = {
+                    "active": True,
+                    "ip": data.get("query"),
+                    "country": data.get("country"),
+                    "city": data.get("city"),
+                    "isp": data.get("isp"),
+                    "org": data.get("org"),
+                    "asn": data.get("as")
+                }
+                scan_cache.set(cache_key, result, ttl_seconds=86400) # 24h cache
+    except Exception:
+        pass
 
     return result
 

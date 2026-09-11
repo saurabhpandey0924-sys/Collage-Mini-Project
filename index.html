@@ -213,13 +213,10 @@
     // Load dynamic statistics
     async function loadStats() {
       try {
-        const token = localStorage.getItem('token');
-        const hRes = await fetch('/api/history', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (hRes.ok) {
-          const hData = await hRes.json();
-          document.getElementById('totalScansCount').innerText = (hData.scans ? hData.scans.length : 0);
+        const sRes = await fetch('/api/stats');
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          document.getElementById('totalScansCount').innerText = (sData.total_scans || 0).toLocaleString();
         }
 
         const mRes = await fetch('/api/model-info');

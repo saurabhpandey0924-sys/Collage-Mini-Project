@@ -246,3 +246,29 @@ def clear_user_scans(user_id=None):
     conn.commit()
     conn.close()
     return True
+
+def get_dashboard_stats():
+    """
+    Returns aggregated real-time database metrics for the SOC dashboard:
+    Total scans, threats detected, safe scans, suspicious scans, and average risk score.
+    """
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+    SELECT 
+        COUNT(*) as total_scans,
+        SUM(CASE WHEN LOWER(verdict) LIKE '%phish%' OR LOWER(verdict) LIKE '%malicious%' THEN 1 ELSE 0 END) as total_threats,
+        SUM(CASE WHEN LOWER(verdict) LIKE '%legit%' OR LOWER(verdict) LIKE '%safe%' OR LOWER(verdict) LIKE '%clean%' THEN 1 ELSE 0 END) as total_safe,
+        SUM(CASE WHEN LOWER(verdict) LIKE '%suspicious%' THEN 1 ELSE 0 END) as total_suspicious,
+        AVG(riskScore) as avg_risk
+    FROM scans;
+    """)
+    row = cursor.fetchone()
+    conn.close()
+    return {
+        "total_scans": row["total_scans"] or 0,
+        "total_threats": row["total_threats"] or 0,
+        "total_safe": row["total_safe"] or 0,
+        "total_suspicious": row["total_suspicious"] or 0,
+        "avg_risk": round(float(row["avg_risk"] or 0), 1)
+    }
