@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>CyberSec Platform - Login</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="theme.js"></script>
   <style>
     .auth-container {
       min-height: 100vh;
@@ -11,6 +12,7 @@
       align-items: center;
       justify-content: center;
       background: var(--bg);
+      transition: background-color 0.25s ease;
     }
     .auth-card {
       width: 100%;
@@ -21,6 +23,7 @@
       text-align: center;
       margin-bottom: 24px;
       font-size: 1.8rem;
+      color: var(--text);
     }
     .auth-card p {
       text-align: center;
@@ -42,6 +45,13 @@
   </style>
 </head>
 <body>
+  <!-- Floating Theme Toggle -->
+  <div style="position: fixed; top: 20px; right: 24px; z-index: 1000;">
+    <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+      <span class="theme-icon">🌙</span> <span class="theme-text">Dark</span>
+    </button>
+  </div>
+
   <div class="auth-container">
     <div class="glass-card auth-card card-inner">
       <div class="brand" style="justify-content: center; margin-bottom: 30px;">

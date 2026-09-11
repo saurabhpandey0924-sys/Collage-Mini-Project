@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Malicious Code Analyzer - CyberSec Platform</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="theme.js"></script>
   <script>
     const isStaticHost = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
     let token = localStorage.getItem('token');
@@ -28,6 +29,9 @@
       <div class="nav-links">
         <a href="index.html">Home Dashboard</a>
         <a href="#" onclick="logout()">Logout</a>
+        <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+          <span class="theme-icon">🌙</span> <span class="theme-text">Dark</span>
+        </button>
       </div>
     </div>
   </nav>

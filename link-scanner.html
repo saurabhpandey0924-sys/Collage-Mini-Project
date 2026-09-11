@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>URL & Website Phishing Detector (Machine Learning) - PhishGuard</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="theme.js"></script>
   <script>
     const isStaticHost = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
     let token = localStorage.getItem('token');
@@ -36,6 +37,9 @@
         <a href="email-analyzer.html">Email Analyzer</a>
         <a href="dashboard.html">Scan History</a>
         <a href="#" onclick="logout()" style="color:#ff6b6b;">Logout</a>
+        <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+          <span class="theme-icon">🌙</span> <span class="theme-text">Dark</span>
+        </button>
       </div>
     </div>
   </nav>
