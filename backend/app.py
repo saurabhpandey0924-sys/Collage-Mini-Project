@@ -447,13 +447,23 @@ def breach_check():
     # 2. Local rule/breach heuristics
     local_result = check_email_breach(email)
 
+    is_breached = hibp_result["breached"] or local_result.get("breached", False)
+    breach_count = hibp_result["count"] if hibp_result["count"] > 0 else len(local_result.get("breaches", []))
+
+    if hibp_result["breached"]:
+        display_msg = f"🚨 Dark Web Breach Alert: '{email}' was identified across {hibp_result['count']:,} public database exposures!"
+    else:
+        display_msg = local_result.get("message", f"✅ No public data breaches discovered for '{email}'.")
+
     combined_breach = {
         "email": email,
-        "breached": hibp_result["breached"] or local_result.get("breached", False),
-        "breach_count": hibp_result["count"] if hibp_result["count"] > 0 else local_result.get("breach_count", 0),
-        "risk_level": hibp_result["risk"],
-        "compromised_data": ["Passwords", "Email Addresses", "IP Logs"] if hibp_result["breached"] else [],
-        "mitigation": "Immediately rotate credentials and enable Hardware/App-based Multi-Factor Authentication (MFA)." if hibp_result["breached"] else "No active public credential breaches detected for this identifier."
+        "breached": is_breached,
+        "breach_count": breach_count,
+        "risk_level": hibp_result.get("risk", "High" if is_breached else "Safe"),
+        "compromised_data": ["Passwords", "Email Addresses", "IP Logs"] if is_breached else [],
+        "message": display_msg,
+        "breaches": local_result.get("breaches", []),
+        "remediation": "Immediately rotate passwords and enforce Authenticator App / FIDO2 Multi-Factor Authentication (MFA)." if is_breached else "Good cyber hygiene maintained. Use unique passphrases for every service."
     }
     return jsonify(combined_breach)
 
