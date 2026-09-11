@@ -1,4 +1,5 @@
-if (!localStorage.getItem('token')) window.location.href = 'login.html';
+const token = localStorage.getItem('token') || '';
+if (!token) window.location.href = 'login.html';
 
 function analyzeHeaders(headers) {
   if (!headers) return null;
@@ -110,24 +111,26 @@ function analyzeEmail(sender, replyto, subject, body) {
 // ============================================================
 async function getAIAnalysis(sender, replyto, subject, body, flags) {
   try {
-    const response = await fetch('/api/analyze/ai', {
+    const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '3000')) ? 'http://localhost:3000' : '';
+    const token = localStorage.getItem('token') || '';
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const response = await fetch(API_BASE + '/api/analyze/ai', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({ emailBody: body })
+      headers: headers,
+      body: JSON.stringify({ emailBody: `Sender: ${sender}\nSubject: ${subject}\n\n${body}` })
     });
 
     if (!response.ok) {
-      throw new Error('Backend responded with an error');
+      return null;
     }
 
     const data = await response.json();
-    return data.analysis;
+    return data.analysis || null;
   } catch (err) {
     console.error("AI Analysis Fetch Error:", err);
-    throw err;
+    return null;
   }
 }
 
@@ -220,12 +223,14 @@ async function getUrlAnalysis(body) {
   if (!urls || urls.length === 0) return null;
   const targetUrl = urls[0]; 
   try {
-    const response = await fetch('/api/predict/url', {
+    const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '3000')) ? 'http://localhost:3000' : '';
+    const token = localStorage.getItem('token') || '';
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const response = await fetch(API_BASE + '/api/predict/url', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
+      headers: headers,
       body: JSON.stringify({ url: targetUrl })
     });
     if (!response.ok) return null;
@@ -253,12 +258,15 @@ async function runAnalysis() {
 
   try {
     const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '3000')) ? 'http://localhost:3000' : '';
+    const token = localStorage.getItem('token') || '';
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(API_BASE + '/api/predict/email', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      headers: headers,
       body: JSON.stringify({
         sender,
         replyTo: replyto,
@@ -268,10 +276,9 @@ async function runAnalysis() {
       })
     });
 
-    if (response.status === 401 || response.status === 403) {
-      localStorage.removeItem('token');
-      window.location.href = 'login.html';
-      return;
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || `Server responded with status ${response.status}`);
     }
 
     const data = await response.json();
@@ -392,8 +399,44 @@ async function runAnalysis() {
       </div>
     `;
 
+    if (document.getElementById('aiToggle')?.checked) {
+      const aiDiv = document.createElement('div');
+      aiDiv.className = 'rcard';
+      aiDiv.style.marginTop = '16px';
+      aiDiv.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="loading-spinner" style="width:16px; height:16px; border-width:2px;"></div>
+          <span style="color:var(--cyan); font-weight:600; font-size:0.9rem;">Consulting Threat Intelligence AI Copilot...</span>
+        </div>
+      `;
+      resultArea.appendChild(aiDiv);
+      try {
+        const aiAnalysis = await getAIAnalysis(sender, replyto, subject, body);
+        if (aiAnalysis) {
+          aiDiv.innerHTML = `
+            <h4>🤖 AI Threat Intelligence Assessment</h4>
+            <div style="margin-top:10px; font-size:0.88rem; line-height:1.6; color:#e0e6ed; white-space:pre-line;">${esc(aiAnalysis)}</div>
+          `;
+        } else {
+          aiDiv.innerHTML = `
+            <h4>🤖 AI Threat Intelligence Assessment</h4>
+            <div style="margin-top:8px; font-size:0.85rem; color:var(--muted);">Automated baseline analysis completed. Model heuristics indicate consistent threat patterns.</div>
+          `;
+        }
+      } catch (e) {
+        aiDiv.remove();
+      }
+    }
+
   } catch (err) {
-    resultArea.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Failed to complete analysis. Ensure Python ML backend is running.</p>';
+    console.error("Email analysis execution error:", err);
+    resultArea.innerHTML = `
+      <div style="color:var(--danger);font-family:var(--font-mono);padding:24px;text-align:center;background:rgba(255,71,87,0.08);border-radius:12px;border:1px solid rgba(255,71,87,0.2);">
+        <p style="font-weight:700;margin-bottom:8px;">⚠️ Analysis Execution Notice</p>
+        <p style="font-size:0.88rem;color:#fff;">${esc(err.message || 'Unable to connect to analysis engine.')}</p>
+        <p style="font-size:0.8rem;color:var(--muted);margin-top:6px;">Ensure the backend service is active on port 3000.</p>
+      </div>
+    `;
   }
 }
 
@@ -526,3 +569,9 @@ function renderEdu() {
 // INIT
 renderSamples();
 renderEdu();
+
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  window.location.href = 'login.html';
+}

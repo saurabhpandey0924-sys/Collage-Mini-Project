@@ -17,8 +17,15 @@ def extract_domain(target):
     if not target:
         return ""
     target = target.strip()
+    if "<" in target and ">" in target:
+        import re
+        m = re.search(r'<([^>]+)>', target)
+        if m:
+            target = m.group(1).strip()
+    target = target.strip().rstrip(">").rstrip(")").rstrip('"').rstrip("'")
     if "@" in target and not target.startswith("http"):
-        return target.split("@")[-1].strip().lower()
+        domain_part = target.split("@")[-1].strip().rstrip(">").rstrip(")")
+        return domain_part.lower()
     if not target.startswith("http://") and not target.startswith("https://"):
         target = "http://" + target
     try:
@@ -27,6 +34,7 @@ def extract_domain(target):
         return host.lower()
     except Exception:
         return ""
+
 
 def live_dns_lookup(domain):
     """

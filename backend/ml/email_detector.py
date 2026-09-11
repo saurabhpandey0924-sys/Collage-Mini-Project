@@ -16,7 +16,7 @@ PROPRIETARY_PATTERNS = {
         "keywords": [
             "immediate action", "urgently", "urgent notice", "24 hours", "48 hours",
             "account suspended", "terminate your account", "action required immediately",
-            "final warning", "unauthorized access detected", "within 12 hours"
+            "final warning", "unauthorized access detected", "within 12 hours", "within 24 hours"
         ]
     },
     "Credential Harvesting Signature": {
@@ -26,16 +26,17 @@ PROPRIETARY_PATTERNS = {
         "keywords": [
             "verify your password", "confirm your password", "update your credentials",
             "enter your password", "confirm your pin", "security questions", "re-authenticate",
-            "validate your identity", "login to restore", "unlock your account"
+            "validate your identity", "login to restore", "unlock your account", "reset your password"
         ]
     },
     "Financial Coercion & Wire Fraud": {
         "weight": 30,
         "classification": "Financial Redirection & Payment Scam",
-        "description": "Directives instructing anomalous wire disbursements, gift card purchases, or non-standard payment channels.",
+        "description": "Directives instructing anomalous wire disbursements, payment updates, or subscription renewals.",
         "keywords": [
             "wire transfer", "gift cards", "bitcoin", "crypto payment", "unpaid invoice",
-            "overdue payment", "bank transfer", "swift code", "remittance advice", "ach transfer"
+            "overdue payment", "payment overdue", "subscription renewal", "auto-renewal", "refund",
+            "bank transfer", "swift code", "remittance advice", "ach transfer", "charge will be final"
         ]
     },
     "Executive & Authority Impersonation": {
@@ -45,16 +46,16 @@ PROPRIETARY_PATTERNS = {
         "keywords": [
             "from the desk of", "strictly confidential", "keep this between us", "do not call me",
             "i am in a meeting", "internal audit", "tax department", "irs notice", "legal action",
-            "subpoena", "fbi notice"
+            "subpoena", "fbi notice", "arrest warrant"
         ]
     },
     "TOAD Callback Vector": {
-        "weight": 20,
+        "weight": 25,
         "classification": "Telephone-Oriented Attack Delivery (TOAD)",
         "description": "Directives instructing recipient to establish outbound voice communication with an unverified telephone helpline.",
         "keywords": [
-            "call customer support", "toll free", "call us immediately at", "helpline number",
-            "call to cancel", "dispute this charge"
+            "call customer support", "customer care number", "toll free", "call us immediately", "helpline number",
+            "call to cancel", "dispute this charge", "call within", "1-800-", "1-888-"
         ]
     }
 }
@@ -126,20 +127,21 @@ def analyze_email(sender, reply_to, subject, body, headers=""):
     dns_intel = None
     if sender_domain:
         dns_intel = live_dns_lookup(sender_domain)
-        if not dns_intel.get("has_mx", True):
-            threat_indicators.append({
-                "category": "DNS Infrastructure Discrepancy",
-                "desc": f"Sender domain '{sender_domain}' lacks active Mail Exchange (MX) records on public DNS.",
-                "severity": "critical"
-            })
-            semantic_score += 35
-        elif not dns_intel.get("spf"):
-            threat_indicators.append({
-                "category": "Unverified Sender Infrastructure",
-                "desc": f"Domain '{sender_domain}' lacks public SPF authorization records, facilitating spoofing.",
-                "severity": "medium"
-            })
-            semantic_score += 15
+        if dns_intel and dns_intel.get("valid"):
+            if not dns_intel.get("has_mx", True):
+                threat_indicators.append({
+                    "category": "DNS Infrastructure Discrepancy",
+                    "desc": f"Sender domain '{sender_domain}' lacks active Mail Exchange (MX) records on public DNS.",
+                    "severity": "critical"
+                })
+                semantic_score += 35
+            elif not dns_intel.get("spf"):
+                threat_indicators.append({
+                    "category": "Unverified Sender Infrastructure",
+                    "desc": f"Domain '{sender_domain}' lacks public SPF authorization records, facilitating spoofing.",
+                    "severity": "medium"
+                })
+                semantic_score += 15
 
     # 2. Sender vs Reply-To Mismatch
     if sender_domain and reply_domain and sender_domain != reply_domain:
@@ -153,7 +155,7 @@ def analyze_email(sender, reply_to, subject, body, headers=""):
     # 3. Brand Authority Impersonation Check
     trusted_brands = ["microsoft", "paypal", "google", "apple", "amazon", "netflix", "chase", "bank of america", "irs", "dhl", "fedex"]
     for brand in trusted_brands:
-        if brand in sender_clean and not sender_clean.endswith(f"@{brand}.com"):
+        if brand in sender_clean and not sender_clean.endswith(f"@{brand}.com") and not sender_clean.endswith(f"<{brand}.com>"):
             threat_indicators.append({
                 "category": f"Brand Authority Impersonation ({brand.capitalize()})",
                 "desc": f"Sender identifier references {brand.capitalize()} without originating from authentic infrastructure.",
@@ -162,9 +164,53 @@ def analyze_email(sender, reply_to, subject, body, headers=""):
             semantic_score += 30
             break
 
+    # 3b. Typosquatting / Deceptive Lookalike Domain Check
+    typo_patterns = [
+        (r'microso[f]{2,}', "Microsoft"),
+        (r'rnicrosoft', "Microsoft"),
+        (r'micros0ft', "Microsoft"),
+        (r'paypa[l1i]', "PayPal"),
+        (r'amaz[o0]n', "Amazon"),
+        (r'arnazon', "Amazon"),
+        (r'netf[l1i]x', "Netflix"),
+        (r'app[l1i]e', "Apple"),
+        (r'g[o0]{2}gle', "Google"),
+        (r'gmai[l1i]', "Gmail")
+    ]
+    for pattern, brand_name in typo_patterns:
+        if sender_domain and re.search(pattern, sender_domain):
+            legit = f"{brand_name.lower()}.com"
+            if sender_domain != legit and not sender_domain.endswith(f".{legit}"):
+                threat_indicators.append({
+                    "category": f"Deceptive Lookalike / Typosquatting Domain ({brand_name})",
+                    "desc": f"Sender domain '{sender_domain}' employs character manipulation or typosquatting mimicking {brand_name}.",
+                    "severity": "critical"
+                })
+                semantic_score += 35
+                break
+
+    # 3c. Deceptive Brand Keywords in Domain
+    for brand in ["microsoft", "paypal", "google", "apple", "amazon", "netflix"]:
+        if sender_domain and brand in sender_domain and not (sender_domain == f"{brand}.com" or sender_domain.endswith(f".{brand}.com")):
+            threat_indicators.append({
+                "category": f"Deceptive Brand Keyword in Domain ({brand.capitalize()})",
+                "desc": f"Sender domain '{sender_domain}' embeds brand name '{brand}' on unauthorized non-official infrastructure.",
+                "severity": "high"
+            })
+            semantic_score += 25
+            break
+
     # 4. Proprietary Semantic Analysis (Obfuscated — zero keyword leaks)
+    negations = ["no immediate action", "not immediate action", "no action is required", "no action required", "not required", "no urgency"]
     for category, info in PROPRIETARY_PATTERNS.items():
-        matched = any(kw in combined_text for kw in info["keywords"])
+        matched = False
+        for kw in info["keywords"]:
+            if kw in combined_text:
+                # Check for negation if kw is "immediate action" or similar
+                if kw in ["immediate action", "action required immediately", "urgently", "urgent notice"] and any(neg in combined_text for neg in negations):
+                    continue
+                matched = True
+                break
         if matched:
             threat_indicators.append({
                 "category": category,
