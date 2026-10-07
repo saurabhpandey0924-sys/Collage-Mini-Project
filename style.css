@@ -1879,3 +1879,280 @@
   color: #059669;
 }
 
+/* ==========================================================================
+   STEP 4: INTERACTIVE MODEL ANALYTICS, ROC CURVES & CONFUSION HEATMAP
+   ========================================================================== */
+.algo-switcher {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.algo-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.algo-btn:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.algo-btn.active {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: #38bdf8;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+}
+.algo-btn .badge-pill {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-family: monospace;
+}
+.algo-btn.active .badge-pill {
+  background: rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+/* ROC Curve Container */
+.roc-chart-wrapper {
+  position: relative;
+  background: rgba(10, 15, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+.roc-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.roc-canvas-container {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  user-select: none;
+}
+.roc-canvas-container canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 8px;
+  cursor: crosshair;
+}
+.roc-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(13, 27, 46, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -120%);
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 10;
+  white-space: nowrap;
+}
+.roc-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.roc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.roc-legend-line {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* Confusion Matrix Heatmap */
+.cm-heatmap-container {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr;
+  grid-template-rows: auto 1fr 1fr;
+  gap: 8px;
+  max-width: 620px;
+  margin: 0 auto 20px auto;
+}
+.cm-header-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  text-align: center;
+  padding: 6px;
+}
+.cm-cell {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.cm-cell:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+.cm-cell.tn {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+.cm-cell.tp {
+  background: rgba(56, 189, 248, 0.14);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+.cm-cell.fp {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+.cm-cell.fn {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+.cm-value {
+  font-size: 2rem;
+  font-weight: 800;
+  font-family: monospace;
+  color: #fff;
+  margin: 4px 0;
+}
+.cm-subtext {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+.cm-rates-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+.cm-rate-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+.cm-rate-val {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: #38bdf8;
+}
+.cm-rate-lbl {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* Feature Importance Horizontal Cards */
+.feat-item {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 10px 14px;
+  transition: all 0.2s ease;
+}
+.feat-item:hover {
+  background: rgba(56, 189, 248, 0.05);
+  border-color: rgba(56, 189, 248, 0.25);
+  transform: translateX(4px);
+}
+.feat-cat-badge {
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.feat-cat-lexical { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+.feat-cat-structure { background: rgba(129, 140, 248, 0.15); color: #818cf8; }
+.feat-cat-network { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.feat-cat-reputation { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.feat-cat-cryptographic { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.feat-cat-content { background: rgba(217, 70, 239, 0.15); color: #d946ef; }
+
+/* Light Theme Overrides for Step 4 */
+[data-theme="light"] .algo-btn {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.12);
+  color: #475569;
+}
+[data-theme="light"] .algo-btn:hover {
+  border-color: #0284c7;
+  color: #0f172a;
+}
+[data-theme="light"] .algo-btn.active {
+  background: rgba(2, 132, 199, 0.1);
+  border-color: #0284c7;
+  color: #0284c7;
+  box-shadow: 0 0 15px rgba(2, 132, 199, 0.18);
+}
+[data-theme="light"] .roc-chart-wrapper {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.1);
+}
+[data-theme="light"] .roc-tooltip {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #0284c7;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+}
+[data-theme="light"] .cm-value {
+  color: #0f172a;
+}
+[data-theme="light"] .cm-rate-card {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+[data-theme="light"] .feat-item {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+[data-theme="light"] .feat-item:hover {
+  background: rgba(2, 132, 199, 0.04);
+  border-color: rgba(2, 132, 199, 0.25);
+}
+
