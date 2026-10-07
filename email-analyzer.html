@@ -3,49 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Saurabh — Advanced Phishing Detection Suite</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="theme.js"></script>
+  <meta name="description" content="Analyze emails for phishing threats using NLP and ML — PhishGuard ML Platform.">
+  <title>Email Phishing Analyzer — PhishGuard ML Platform</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2.0" />
+  <script src="theme.js?v=2.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/postal-mime@2.2.1/dist/postal-mime.js"></script>
 </head>
 <body>
+  <!-- AMBIENT AURORA LIGHT MESH -->
+  <div class="ambient-aurora">
+    <div class="aurora-beam aurora-1"></div>
+    <div class="aurora-beam aurora-2"></div>
+  </div>
 
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-<div class="orb orb-3"></div>
+  <!-- FLOATING ISLAND NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <!-- Brand & Official Logo -->
+      <div class="nav-brand">
+        <a href="index.html" class="brand-link">
+          <div class="brand-logo-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L3 6V12C3 17.5 6.8 22.6 12 24C17.2 22.6 21 17.5 21 12V6L12 2Z" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M12 7L7 9.5V13C7 16.1 9.1 19 12 19.8C14.9 19 17 16.1 17 13V9.5L12 7Z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="1.2"/>
+              <circle cx="12" cy="13" r="2" fill="#fff"/>
+            </svg>
+          </div>
+          <span class="brand-name">Phish<span class="brand-cyan">Guard</span></span>
+          <span class="brand-tag">AI</span>
+        </a>
+      </div>
 
-<!-- NAVBAR -->
-<header class="navbar">
-  <div class="container nav-inner">
-    <div class="brand">
-      <div class="brand-icon">🛡️</div>
-      <div>
-        PhishGuard <strong>ML Platform</strong>
-        <small>Email Phishing & Threat Triage Analyzer</small>
+      <!-- Centered Navigation Links -->
+      <div class="nav-menu">
+        <a href="index.html" class="nav-item">Home</a>
+        <a href="link-scanner.html" class="nav-item">URL Scanner</a>
+        <a href="email-analyzer.html" class="nav-item active">Email Analyzer</a>
+        <a href="sms-analyzer.html" class="nav-item">SMS Scanner</a>
+        <a href="code-analyzer.html" class="nav-item">Code Audit</a>
+        <a href="data-breach.html" class="nav-item">Breach Intel</a>
+        <a href="dashboard.html" class="nav-item">Dashboard</a>
+      </div>
+
+      <!-- Right Side Actions: Theme Button & Logout -->
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Color Theme" title="Toggle Theme">
+          <svg class="theme-icon moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="theme-icon sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <a href="#" onclick="logout(); return false;" class="logout-link" title="Logout Session">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Exit</span>
+        </a>
       </div>
     </div>
-    <nav class="nav-links">
-      <a href="index.html">Home Dashboard</a>
-      <a href="link-scanner.html">URL ML Detector</a>
-      <a href="email-analyzer.html" style="color:var(--cyan); background:rgba(94,240,255,0.08); border-radius:8px;">Email Analyzer</a>
-      <a href="dashboard.html">Scan History</a>
-      <a href="#samples">Samples</a>
-      <a href="#rules">Red Flags</a>
-      <a href="#learn">Learn</a>
-      <a href="#" onclick="logout()" style="color:#ff6b6b;">Logout</a>
-      <div class="theme-switch-wrapper" title="Toggle Dark / Light Mode">
-        <span class="theme-switch-icon">🌙</span>
-        <div class="checkbox-wrapper-5">
-          <div class="check">
-            <input id="themeToggleCheck" class="theme-toggle-checkbox" type="checkbox" onchange="toggleTheme(event)">
-            <label for="themeToggleCheck"></label>
-          </div>
-        </div>
-        <span class="theme-switch-icon">☀️</span>
-      </div>
-    </nav>
-    <div class="nav-badge">⚡ ML ENGINE ACTIVE</div>
-  </div>
-</header>
+  </nav>
 
 <!-- HERO -->
 <section class="hero" id="home">
@@ -104,6 +131,12 @@
           <div class="panel-head">
             <h3>📧 Paste Email Details</h3>
             <span>Manual input / lab simulation</span>
+          </div>
+
+          <div id="emlDropZone" class="drop-zone">
+            <div class="drop-icon">📥</div>
+            <div class="drop-text">Drag & Drop an <strong>.eml</strong> file here<br><small>or click to upload and auto-fill</small></div>
+            <input type="file" id="emlFileInput" accept=".eml" style="display: none;" />
           </div>
 
           <div class="ai-toggle-row">

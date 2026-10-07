@@ -2,88 +2,154 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CyberSec Platform - Login</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="theme.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analyst Authentication — PhishGuard AI</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z'/></svg>" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2.1" />
+  <script src="theme.js?v=2.1"></script>
   <style>
-    .auth-container {
-      min-height: 100vh;
+    body {
       display: flex;
-      align-items: center;
+      flex-direction: column;
       justify-content: center;
-      background: var(--bg);
-      transition: background-color 0.25s ease;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
+    .auth-container {
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 10;
     }
     .auth-card {
-      width: 100%;
-      max-width: 400px;
-      padding: 40px;
-    }
-    .auth-card h2 {
-      text-align: center;
-      margin-bottom: 24px;
-      font-size: 1.8rem;
-      color: var(--text);
-    }
-    .auth-card p {
-      text-align: center;
-      color: var(--muted);
-      margin-bottom: 24px;
-      font-size: 0.95rem;
+      padding: 36px 32px;
+      border-radius: 20px;
+      background: rgba(10, 16, 30, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.1);
     }
     .switch-mode {
       text-align: center;
       margin-top: 20px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       color: var(--muted);
     }
     .switch-mode a {
       color: var(--cyan);
       cursor: pointer;
       text-decoration: none;
+      font-weight: 600;
+    }
+    .top-nav-bar {
+      position: fixed;
+      top: 20px;
+      left: 24px;
+      right: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+    .back-home-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 600;
+      background: rgba(10, 16, 30, 0.6);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 16px;
+      border-radius: 999px;
+      transition: all 0.2s ease;
+    }
+    .back-home-btn:hover {
+      color: #fff;
+      border-color: rgba(56, 189, 248, 0.4);
+      background: rgba(56, 189, 248, 0.08);
     }
   </style>
 </head>
 <body>
-  <!-- Floating Theme Toggle -->
-  <div style="position: fixed; top: 20px; right: 24px; z-index: 1000;">
-    <div class="theme-switch-wrapper" style="--size: 30px;" title="Toggle Dark / Light Mode">
-      <span class="theme-switch-icon" style="font-size: 0.95rem;">🌙</span>
-      <div class="checkbox-wrapper-5">
-        <div class="check">
-          <input id="themeToggleCheck" class="theme-toggle-checkbox" type="checkbox" onchange="toggleTheme(event)">
-          <label for="themeToggleCheck"></label>
-        </div>
-      </div>
-      <span class="theme-switch-icon" style="font-size: 0.95rem;">☀️</span>
-    </div>
+  <!-- AMBIENT AURORA LIGHT MESH -->
+  <div class="ambient-aurora">
+    <div class="aurora-beam aurora-1"></div>
+    <div class="aurora-beam aurora-2"></div>
+  </div>
+
+  <!-- TOP UTILITY BAR -->
+  <div class="top-nav-bar">
+    <a href="index.html" class="back-home-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      <span>Back to Platform</span>
+    </a>
+
+    <!-- Unified Theme Toggle Button -->
+    <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Color Theme" title="Toggle Theme">
+      <svg class="theme-icon moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+      <svg class="theme-icon sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+    </button>
   </div>
 
   <div class="auth-container">
     <div class="glass-card auth-card card-inner">
-      <div class="brand" style="justify-content: center; margin-bottom: 30px;">
-        <div class="brand-icon">🛡️</div>
-        <div>
-          CyberSec <strong>Platform</strong>
-          <small>Enterprise Security Suite</small>
+      <!-- Official SVG Shield Brand Emblem -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 24px;">
+        <div class="brand-logo-badge" style="width: 44px; height: 44px; border-radius: 12px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L3 6V12C3 17.5 6.8 22.6 12 24C17.2 22.6 21 17.5 21 12V6L12 2Z" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M12 7L7 9.5V13C7 16.1 9.1 19 12 19.8C14.9 19 17 16.1 17 13V9.5L12 7Z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="1.2"/>
+            <circle cx="12" cy="13" r="2" fill="#fff"/>
+          </svg>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 1.35rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Phish<span style="color: #38bdf8;">Guard</span></span>
+          <span class="brand-tag">AI</span>
         </div>
       </div>
 
-      <h2 id="authTitle">Welcome Back</h2>
-      <p id="authDesc">Sign in to access advanced cybersecurity tools and analytics.</p>
+      <h2 id="authTitle" style="text-align: center; font-size: 1.4rem; font-weight: 700; margin-bottom: 6px;">SOC Terminal Access</h2>
+      <p id="authDesc" style="text-align: center; color: var(--muted); font-size: 0.88rem; margin-bottom: 24px;">Sign in to unlock multi-engine heuristics and persistent investigation logs.</p>
 
       <form id="authForm">
         <div class="field">
-          <label>Username</label>
-          <input type="text" id="username" placeholder="Enter username" required />
+          <label style="font-weight: 600;">Analyst Username</label>
+          <input type="text" id="username" placeholder="e.g. analyst1" required style="border-radius: 10px;" />
         </div>
         <div class="field">
-          <label>Password</label>
-          <input type="password" id="password" placeholder="Enter password" required />
+          <label style="font-weight: 600;">Security Key / Password</label>
+          <input type="password" id="password" placeholder="••••••••••••" required style="border-radius: 10px;" />
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;" id="authBtn">Log In</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 14px; padding: 11px; font-weight: 600;" id="authBtn">Authenticate Session</button>
       </form>
-      <div id="errorMsg" style="color: var(--danger); text-align: center; margin-top: 15px; display: none;"></div>
+      
+      <button type="button" class="btn btn-outline" onclick="guestLogin()" style="width: 100%; justify-content: center; margin-top: 10px; padding: 9px; border-color: rgba(255,255,255,0.12); color: var(--muted); font-size: 0.85rem;">
+        Continue as Guest Analyst
+      </button>
+
+      <div id="errorMsg" style="color: #ef4444; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); border-radius: 8px; padding: 10px; font-size: 0.84rem; text-align: center; margin-top: 16px; display: none;"></div>
 
       <div class="switch-mode" id="switchMode">
         Don't have an account? <a onclick="toggleMode()">Register here</a>
@@ -102,12 +168,12 @@
 
     function toggleMode() {
       isLogin = !isLogin;
-      document.getElementById('authTitle').innerText = isLogin ? 'Welcome Back' : 'Create Account';
-      document.getElementById('authDesc').innerText = isLogin ? 'Sign in to access advanced cybersecurity tools and analytics.' : 'Register to start using our powerful OSINT tools.';
-      document.getElementById('authBtn').innerText = isLogin ? 'Log In' : 'Register';
+      document.getElementById('authTitle').innerText = isLogin ? 'SOC Terminal Access' : 'Create Analyst Account';
+      document.getElementById('authDesc').innerText = isLogin ? 'Sign in to unlock multi-engine heuristics and persistent logs.' : 'Register a new operator identity on this node.';
+      document.getElementById('authBtn').innerText = isLogin ? 'Authenticate Session' : 'Create Identity';
       document.getElementById('switchMode').innerHTML = isLogin 
         ? `Don't have an account? <a onclick="toggleMode()">Register here</a>` 
-        : `Already have an account? <a onclick="toggleMode()">Log in here</a>`;
+        : `Already registered? <a onclick="toggleMode()">Log in here</a>`;
       document.getElementById('errorMsg').style.display = 'none';
     }
 
@@ -150,39 +216,36 @@
           } else {
             toggleMode();
             document.getElementById('errorMsg').style.display = 'block';
-            document.getElementById('errorMsg').style.color = 'var(--success)';
-            document.getElementById('errorMsg').innerText = 'Registration successful! Please log in.';
+            document.getElementById('errorMsg').style.color = '#10b981';
+            document.getElementById('errorMsg').style.background = 'rgba(16,185,129,0.1)';
+            document.getElementById('errorMsg').style.borderColor = 'rgba(16,185,129,0.25)';
+            document.getElementById('errorMsg').innerText = 'Registration successful! You may now authenticate.';
           }
           return;
         }
 
-        // If backend returned explicit credential error (e.g. 401 wrong password on active server)
-        if (res && res.status === 401 && data && data.error) {
+        // If backend returned an error, display the specific error message
+        if (res && !res.ok && data && data.error) {
           throw new Error(data.error);
+        } else if (res && !res.ok) {
+          throw new Error(`Server returned an error: ${res.status}`);
         }
 
-        // Seamless fallback for GitHub Pages / Static Hosting:
+        // If we reached here without a response, the backend is unreachable
         if (isLogin) {
-          localStorage.setItem('token', 'gh_pages_live_session_' + Date.now());
-          localStorage.setItem('username', u || 'Demo Analyst');
-          window.location.href = 'index.html';
+          throw new Error('Cannot connect to the backend server on port 3000. Try continuing as Guest Analyst.');
         } else {
-          toggleMode();
-          document.getElementById('errorMsg').style.display = 'block';
-          document.getElementById('errorMsg').style.color = 'var(--success)';
-          document.getElementById('errorMsg').innerText = 'Demo registration verified. Logging you in...';
-          setTimeout(() => {
-            guestLogin();
-          }, 600);
+          throw new Error('Cannot connect to the server. Registration requires the backend to be running.');
         }
 
       } catch (err) {
         document.getElementById('errorMsg').style.display = 'block';
-        document.getElementById('errorMsg').style.color = 'var(--danger)';
+        document.getElementById('errorMsg').style.color = '#ef4444';
+        document.getElementById('errorMsg').style.background = 'rgba(239,68,68,0.1)';
+        document.getElementById('errorMsg').style.borderColor = 'rgba(239,68,68,0.25)';
         document.getElementById('errorMsg').innerText = err.message;
       }
     });
-
   </script>
 </body>
 </html>

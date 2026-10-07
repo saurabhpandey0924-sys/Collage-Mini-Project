@@ -145,5 +145,26 @@ app.post('/api/analyze/breach', authenticateToken, async (req, res) => {
     });
 });
 
+// =======================
+// INBOUND EMAIL WEBHOOK
+// =======================
+// To use this, set up an MX record and point an inbound email service (like SendGrid or Mailgun) to this webhook.
+app.post('/api/webhook/email', async (req, res) => {
+    // This expects parsed JSON from the email provider webhook.
+    // e.g. Mailgun sends parsed fields.
+    const { from, to, subject, text, html } = req.body;
+    
+    // In a real app, you would verify the webhook signature here.
+    console.log(`Received inbound email from: ${from}`);
+    console.log(`Subject: ${subject}`);
+    
+    // Process the email text with your local heuristics/AI
+    // ...
+    // Store in DB, send notification back to the user, etc.
+    
+    // Respond OK so the email provider knows we received it
+    res.status(200).send("Email received and parsed successfully");
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Backend server running on http://localhost:${PORT}`));

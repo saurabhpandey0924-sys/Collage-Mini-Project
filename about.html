@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="About PhishGuard AI — Advanced Threat Intelligence & Phishing Heuristic Detection Suite.">
+  <title>About Us — PhishGuard AI</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z'/></svg>" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2.1" />
+  <script src="theme.js?v=2.1"></script>
+</head>
+<body>
+  <!-- AMBIENT AURORA LIGHT MESH -->
+  <div class="ambient-aurora">
+    <div class="aurora-beam aurora-1"></div>
+    <div class="aurora-beam aurora-2"></div>
+  </div>
+
+  <!-- FLOATING ISLAND NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <!-- Brand & Official Logo -->
+      <div class="nav-brand">
+        <a href="index.html" class="brand-link">
+          <div class="brand-logo-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L3 6V12C3 17.5 6.8 22.6 12 24C17.2 22.6 21 17.5 21 12V6L12 2Z" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M12 7L7 9.5V13C7 16.1 9.1 19 12 19.8C14.9 19 17 16.1 17 13V9.5L12 7Z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="1.2"/>
+              <circle cx="12" cy="13" r="2" fill="#fff"/>
+            </svg>
+          </div>
+          <span class="brand-name">Phish<span class="brand-cyan">Guard</span></span>
+          <span class="brand-tag">AI</span>
+        </a>
+      </div>
+
+      <!-- Centered Navigation Links -->
+      <div class="nav-menu">
+        <a href="index.html" class="nav-item">Home</a>
+        <a href="link-scanner.html" class="nav-item">URL Scanner</a>
+        <a href="email-analyzer.html" class="nav-item">Email Analyzer</a>
+        <a href="sms-analyzer.html" class="nav-item">SMS Scanner</a>
+        <a href="code-analyzer.html" class="nav-item">Code Audit</a>
+        <a href="data-breach.html" class="nav-item">Breach Intel</a>
+        <a href="dashboard.html" class="nav-item">Dashboard</a>
+      </div>
+
+      <!-- Right Side Actions: Theme Button & Logout -->
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Color Theme" title="Toggle Theme">
+          <svg class="theme-icon moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="theme-icon sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <a href="login.html" class="logout-link">Sign In</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top: 30px; padding-bottom: 60px; max-width: 860px;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span class="hero-badge" style="margin: 0;">ARCHITECTURE & PLATFORM</span>
+      <span style="font-size: 0.8rem; color: var(--cyan); background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); padding: 2px 8px; border-radius: 999px;">Version 2.1 Enterprise</span>
+    </div>
+
+    <h1 style="font-size: 2.2rem; margin-bottom: 8px; font-weight: 800;">About PhishGuard AI</h1>
+    <p style="color: var(--muted); margin-bottom: 32px; font-size: 1rem;">Architectural blueprint, security research mission, and technology foundations.</p>
+
+    <!-- Mission -->
+    <div class="glass-card card-inner" style="padding: 32px; margin-bottom: 24px; border-radius: 16px;">
+      <h2 style="font-size: 1.25rem; color: var(--cyan); margin-bottom: 12px; font-weight: 700;">🎯 Platform Mission</h2>
+      <p style="color: var(--muted); line-height: 1.8;">
+        PhishGuard AI was engineered to bridge academic machine learning research with real-world threat intelligence operations. Modern phishing actors deploy weaponized homoglyphs, automated reverse proxies, and generative social engineering lures. Our multi-engine architecture evaluates structural URL vectors, cryptographic email headers (SPF/DKIM/DMARC), and AST code patterns in real time to neutralize deception before credential harm occurs.
+      </p>
+    </div>
+
+    <!-- Technology -->
+    <div class="glass-card card-inner" style="padding: 32px; margin-bottom: 24px; border-radius: 16px;">
+      <h2 style="font-size: 1.25rem; color: var(--cyan); margin-bottom: 16px; font-weight: 700;">⚙️ Engineering Stack</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+        <div style="padding: 18px; border-radius: 12px; background: rgba(56,189,248,0.05); border: 1px solid rgba(56,189,248,0.18);">
+          <h4 style="color: var(--text); margin-bottom: 6px; font-weight: 700;">🧠 Machine Learning Core</h4>
+          <p style="color: var(--muted); font-size: 0.84rem; line-height: 1.5;">Random Forest Ensembles, Gradient Boosting Heuristics, Multi-Modal Feature Extraction.</p>
+        </div>
+        <div style="padding: 18px; border-radius: 12px; background: rgba(56,189,248,0.05); border: 1px solid rgba(56,189,248,0.18);">
+          <h4 style="color: var(--text); margin-bottom: 6px; font-weight: 700;">🐍 Backend Microservices</h4>
+          <p style="color: var(--muted); font-size: 0.84rem; line-height: 1.5;">Node.js / Express SOC Gateway, SQLite WAL Data Layer, PBKDF2 Password Hashing.</p>
+        </div>
+        <div style="padding: 18px; border-radius: 12px; background: rgba(56,189,248,0.05); border: 1px solid rgba(56,189,248,0.18);">
+          <h4 style="color: var(--text); margin-bottom: 6px; font-weight: 700;">🌐 Presentation Layer</h4>
+          <p style="color: var(--muted); font-size: 0.84rem; line-height: 1.5;">Next-gen Glassmorphism, Floating HUD Navigation, GPU-accelerated Ambient Aurora.</p>
+        </div>
+        <div style="padding: 18px; border-radius: 12px; background: rgba(56,189,248,0.05); border: 1px solid rgba(56,189,248,0.18);">
+          <h4 style="color: var(--text); margin-bottom: 6px; font-weight: 700;">🔗 Threat Feeds & Intel</h4>
+          <p style="color: var(--muted); font-size: 0.84rem; line-height: 1.5;">Live DNS-over-HTTPS, WHOIS Registry Telemetry, Dark Web Breach Repositories.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- What We Detect -->
+    <div class="glass-card card-inner" style="padding: 32px; margin-bottom: 24px; border-radius: 16px;">
+      <h2 style="font-size: 1.25rem; color: var(--cyan); margin-bottom: 14px; font-weight: 700;">🛡️ Detection Capabilities</h2>
+      <ul style="color: var(--muted); line-height: 2; padding-left: 20px;">
+        <li><strong style="color: var(--text);">Phishing Websites:</strong> 16+ structural and lexical URL parameters evaluated via high-dimensional decision trees.</li>
+        <li><strong style="color: var(--text);">Email Threats:</strong> NLP sentiment analysis coupled with rigorous cryptographic DKIM and SPF relay path audits.</li>
+        <li><strong style="color: var(--text);">SMS Smishing:</strong> Mobile text vector evaluation targeting fake bank lures, toll fees, and postal scams.</li>
+        <li><strong style="color: var(--text);">Credential Breach Intel:</strong> Immediate indexing against 12.4+ billion compromised record repositories.</li>
+        <li><strong style="color: var(--text);">Static Script Audit:</strong> AST parsing to spot data exfiltration hooks and evasive obfuscation methods.</li>
+      </ul>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="glass-card card-inner" style="padding: 32px; margin-bottom: 24px; border-radius: 16px; border-color: rgba(245,158,11,0.3);">
+      <h2 style="font-size: 1.25rem; color: #f59e0b; margin-bottom: 12px; font-weight: 700;">⚠️ Academic & Research Disclosure</h2>
+      <p style="color: var(--muted); line-height: 1.7;">
+        PhishGuard AI is an advanced cybersecurity research and educational platform. While all heuristic models are engineered for high-precision inference, automated intelligence should complement rather than replace defense-in-depth protocols and human SOC analyst discretion.
+      </p>
+    </div>
+
+    <!-- Contact -->
+    <div class="glass-card card-inner" style="padding: 32px; border-radius: 16px;">
+      <h2 style="font-size: 1.25rem; color: var(--cyan); margin-bottom: 12px; font-weight: 700;">📬 Research Collaboration</h2>
+      <p style="color: var(--muted); line-height: 1.7; margin-bottom: 16px;">
+        For questions, feature feedback, or dataset contributions, contact the research group:
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.95rem;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span>📧</span>
+          <span style="color: var(--text);">research@phishguard.ai</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span>🐙</span>
+          <span style="color: var(--text);">github.com/phishguard-ai</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="brand-info" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <svg style="width: 20px; height: 20px; color: #38bdf8;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          <span style="font-weight: 700; color: #fff;">PhishGuard <span style="color: #38bdf8;">AI</span></span>
+        </div>
+        <p>Enterprise-grade phishing detection and threat intelligence platform powered by advanced multi-modal heuristic models.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Threat Tools</h4>
+        <a href="link-scanner.html">URL Scanner</a>
+        <a href="email-analyzer.html">Email Analyzer</a>
+        <a href="sms-analyzer.html">SMS Scanner</a>
+        <a href="code-analyzer.html">Code Audit</a>
+      </div>
+      <div class="footer-links">
+        <h4>Platform</h4>
+        <a href="dashboard.html">SOC Dashboard</a>
+        <a href="data-breach.html">Breach Intelligence</a>
+        <a href="about.html">Architecture & About</a>
+      </div>
+      <div class="footer-links">
+        <h4>Trust & Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 PhishGuard AI Systems. Enterprise Security Research Division.</p>
+    </div>
+  </footer>
+</body>
+</html>

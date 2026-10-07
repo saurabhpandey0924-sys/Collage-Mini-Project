@@ -21,7 +21,7 @@ from ml.model_trainer import (
 from ml.email_detector import analyze_email
 from ml.threat_analyzers import analyze_sms_threat, analyze_code_threat, check_email_breach
 from ml.threat_apis import (
-    live_dns_lookup, live_ssl_inspect, check_hibp_pwned,
+    live_dns_lookup, live_ssl_inspect, check_hibp_pwned, query_live_email_breach,
     query_virustotal_url, query_google_safebrowsing, extract_domain,
     query_rdap_domain_intel, query_ip_intel
 )
@@ -31,9 +31,21 @@ from ml.cache_manager import scan_cache
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 app = Flask(__name__, static_folder=FRONTEND_DIR)
-CORS(app)
 
-JWT_SECRET = os.environ.get("JWT_SECRET", "phishguard_enterprise_secure_token_secret_key_2026_x7a")
+# CORS: Restrict to known origins (add your production domain here)
+CORS(app, origins=[
+    "http://localhost:3000",
+    "http://localhost:5500",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5500",
+])
+
+# JWT Secret: Use environment variable. Fallback is for development only.
+_jwt_fallback = "phishguard_dev_only_secret_change_in_production_2026"
+JWT_SECRET = os.environ.get("JWT_SECRET", _jwt_fallback)
+if JWT_SECRET == _jwt_fallback and os.environ.get("FLASK_ENV") == "production":
+    print("[FATAL] JWT_SECRET environment variable is not set! Refusing to start in production.")
+    sys.exit(1)
 
 # ==============================================================================
 # STATELESS CRYPTOGRAPHIC JWT ENGINE (RFC 7519 HMAC-SHA256)
@@ -152,8 +164,6 @@ def get_user_from_request(req):
         user = verify_jwt(token)
         if user:
             return user
-        # Fault-tolerant session fallback during local evaluation
-        return {"id": 1, "username": "student"}
     return None
 
 # ==============================================================================
@@ -181,8 +191,10 @@ def auth_register():
 
     if not username or not password:
         return jsonify({"error": "Username and password are required."}), 400
-    if len(password) < 6:
-        return jsonify({"error": "Password must be at least 6 characters."}), 400
+    if len(password) < 8:
+        return jsonify({"error": "Password must be at least 8 characters with a mix of letters and numbers."}), 400
+    if password.isalpha() or password.isdigit():
+        return jsonify({"error": "Password must contain both letters and numbers."}), 400
 
     result = register_user(username, password, email)
     if not result["success"]:
@@ -466,34 +478,43 @@ def code_analyze_endpoint():
 def breach_check():
     data = get_request_data(request)
     email = data.get("email", "").strip()
+    refresh = bool(data.get("refresh", False))
     if not email:
         return jsonify({"error": "Email address is required."}), 400
 
-    # 1. Live HaveIBeenPwned k-Anonymity lookup
-    hibp_result = check_hibp_pwned(email)
-    
-    # 2. Local rule/breach heuristics
+    # 1. Real-time Live Dark Web Breach API (XposedOrNot Global Breach Database)
+    live_result = query_live_email_breach(email, bypass_cache=refresh)
+    if live_result is not None:
+        remediation = (
+            "Immediately rotate passwords on affected services and enforce Authenticator App / FIDO2 Multi-Factor Authentication (MFA)."
+            if live_result["breached"]
+            else "Good cyber hygiene maintained. Use unique passphrases for every service."
+        )
+        return jsonify({
+            "email": email,
+            "breached": live_result["breached"],
+            "breach_count": live_result["breach_count"],
+            "risk_level": live_result["risk_level"],
+            "message": live_result["message"],
+            "breaches": live_result["breaches"],
+            "remediation": remediation,
+            "source": live_result.get("source", "Live Threat Intelligence")
+        })
+
+    # 2. Local Fallback (if offline or API unreachable)
     local_result = check_email_breach(email)
+    is_breached = local_result.get("breached", False)
 
-    is_breached = hibp_result["breached"] or local_result.get("breached", False)
-    breach_count = hibp_result["count"] if hibp_result["count"] > 0 else len(local_result.get("breaches", []))
-
-    if hibp_result["breached"]:
-        display_msg = f"🚨 Dark Web Breach Alert: '{email}' was identified across {hibp_result['count']:,} public database exposures!"
-    else:
-        display_msg = local_result.get("message", f"✅ No public data breaches discovered for '{email}'.")
-
-    combined_breach = {
+    return jsonify({
         "email": email,
         "breached": is_breached,
-        "breach_count": breach_count,
-        "risk_level": hibp_result.get("risk", "High" if is_breached else "Safe"),
-        "compromised_data": ["Passwords", "Email Addresses", "IP Logs"] if is_breached else [],
-        "message": display_msg,
+        "breach_count": len(local_result.get("breaches", [])),
+        "risk_level": "High" if is_breached else "Safe",
+        "message": local_result.get("message", f"No public data breaches discovered for '{email}'."),
         "breaches": local_result.get("breaches", []),
-        "remediation": "Immediately rotate passwords and enforce Authenticator App / FIDO2 Multi-Factor Authentication (MFA)." if is_breached else "Good cyber hygiene maintained. Use unique passphrases for every service."
-    }
-    return jsonify(combined_breach)
+        "remediation": local_result.get("remediation", "Maintain strong account security with unique passphrases."),
+        "source": "Offline Baseline Simulation"
+    })
 
 @app.route("/api/analyze/ai", methods=["POST"])
 def ai_analyze():

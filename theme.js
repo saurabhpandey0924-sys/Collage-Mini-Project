@@ -22,17 +22,14 @@ function updateThemeButtonUI(theme) {
     w.setAttribute('title', theme === 'light' ? 'Switch to Dark Mode (Currently Light)' : 'Switch to Light Mode (Currently Dark)');
   });
 
-  // Legacy button UI sync (if present)
+  // Modern SVG & Legacy button UI sync
   const buttons = document.querySelectorAll('.theme-toggle-btn');
   buttons.forEach(btn => {
-    const icon = btn.querySelector('.theme-icon');
     const text = btn.querySelector('.theme-text');
     if (theme === 'light') {
-      if (icon) icon.textContent = '☀️';
       if (text) text.textContent = 'Light';
       btn.setAttribute('title', 'Switch to Dark Mode');
     } else {
-      if (icon) icon.textContent = '🌙';
       if (text) text.textContent = 'Dark';
       btn.setAttribute('title', 'Switch to Light Mode');
     }
@@ -55,8 +52,52 @@ function toggleTheme(e) {
 document.addEventListener('DOMContentLoaded', () => {
   const current = document.documentElement.getAttribute('data-theme') || 'dark';
   updateThemeButtonUI(current);
+
+  // Inject Glowing Background Orbs for Glassmorphism
+  const orbsContainer = document.createElement('div');
+  orbsContainer.className = 'orbs-background';
+  orbsContainer.innerHTML = `
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  `;
+  document.body.prepend(orbsContainer);
 });
 
 window.toggleTheme = toggleTheme;
 window.updateThemeButtonUI = updateThemeButtonUI;
 
+
+// ============================================================
+// UI ANIMATIONS & SCROLL OBSERVERS (Modern Freelance Style)
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Navbar Scroll Effect
+  const navbar = document.querySelector('.navbar');
+  if (navbar) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 20) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+  }
+
+  // 2. Reveal on Scroll (Intersection Observer)
+  const revealElements = document.querySelectorAll('.reveal');
+  const revealOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('active');
+      observer.unobserve(entry.target);
+    });
+  }, revealOptions);
+
+  revealElements.forEach(el => revealOnScroll.observe(el));
+});

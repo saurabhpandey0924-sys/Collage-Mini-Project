@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Privacy Policy for PhishGuard AI — How we protect and process telemetry and account information.">
+  <title>Privacy Policy — PhishGuard AI</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z'/></svg>" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2.1" />
+  <script src="theme.js?v=2.1"></script>
+</head>
+<body>
+  <!-- AMBIENT AURORA LIGHT MESH -->
+  <div class="ambient-aurora">
+    <div class="aurora-beam aurora-1"></div>
+    <div class="aurora-beam aurora-2"></div>
+  </div>
+
+  <!-- FLOATING ISLAND NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <!-- Brand & Official Logo -->
+      <div class="nav-brand">
+        <a href="index.html" class="brand-link">
+          <div class="brand-logo-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L3 6V12C3 17.5 6.8 22.6 12 24C17.2 22.6 21 17.5 21 12V6L12 2Z" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M12 7L7 9.5V13C7 16.1 9.1 19 12 19.8C14.9 19 17 16.1 17 13V9.5L12 7Z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="1.2"/>
+              <circle cx="12" cy="13" r="2" fill="#fff"/>
+            </svg>
+          </div>
+          <span class="brand-name">Phish<span class="brand-cyan">Guard</span></span>
+          <span class="brand-tag">AI</span>
+        </a>
+      </div>
+
+      <!-- Centered Navigation Links -->
+      <div class="nav-menu">
+        <a href="index.html" class="nav-item">Home</a>
+        <a href="link-scanner.html" class="nav-item">URL Scanner</a>
+        <a href="email-analyzer.html" class="nav-item">Email Analyzer</a>
+        <a href="sms-analyzer.html" class="nav-item">SMS Scanner</a>
+        <a href="code-analyzer.html" class="nav-item">Code Audit</a>
+        <a href="data-breach.html" class="nav-item">Breach Intel</a>
+        <a href="dashboard.html" class="nav-item">Dashboard</a>
+      </div>
+
+      <!-- Right Side Actions: Theme Button & Logout -->
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Color Theme" title="Toggle Theme">
+          <svg class="theme-icon moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="theme-icon sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <a href="login.html" class="logout-link">Sign In</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top: 30px; padding-bottom: 60px; max-width: 860px;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span class="hero-badge" style="margin: 0;">DATA GOVERNANCE</span>
+      <span style="font-size: 0.8rem; color: var(--cyan); background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); padding: 2px 8px; border-radius: 999px;">Confidentiality Standard</span>
+    </div>
+
+    <h1 style="font-size: 2.2rem; margin-bottom: 8px; font-weight: 800;">Privacy Policy</h1>
+    <p style="color: var(--muted); margin-bottom: 32px; font-size: 1rem;">Enterprise data handling, telemetry isolation, and cryptographic storage standards.</p>
+
+    <div class="glass-card card-inner" style="padding: 32px; margin-bottom: 24px; border-radius: 16px;">
+      <h2 style="font-size: 1.25rem; color: var(--cyan); margin-bottom: 12px; font-weight: 700;">1. Information We Collect</h2>
+      <p style="color: var(--muted); line-height: 1.7; margin-bottom: 12px;">When you utilize PhishGuard AI systems, we process:</p>
+      <ul style="color: var(--muted); line-height: 2; padding-left: 20px;">
+        <li><strong style="color: var(--text);">Account Credentials:</strong> Sanitized analyst username and cryptographic PBKDF2 salted hash representations.</li>
+        <li><strong style="color: var(--text);">Telemetry Targets:</strong> Submitted URLs, sanitized email headers, and SMS test snippets.</li>
+        <li><strong style="color: var(--text);">Audit History:</strong> Heuristic risk scores, timestamp logs, and execution confidence values.</li>
+        <li><strong style="color: var(--text);">Network Bounds:</strong> Session tokens and rate limiting trackers to safeguard against automated flooding.</li>
+      </ul>
+    </div>
+
+    <div class="glass-card card-inner" style="padding: 32px; margin-bottom: 24px; border-radius: 16px;">
+      <h2 style="font-size: 1.25rem; color: var(--cyan); margin-bottom: 12px; font-weight: 700;">2. How We Use Telemetry</h2>
+      <p style="color: var(--muted); line-height: 1.7; margin-bottom: 12px;">Collected metrics serve exclusively for:</p>
+      <ul style="color: var(--muted); line-height: 2; padding-left: 20px;">
+        <li>Validating active analyst sessions via signed bearer tokens.</li>
+        <li>Evaluating multi-feature threat matrices across Random Forest and NLP classifiers.</li>
+        <li>Generating persistent dashboard metrics and SOC incident history.</li>
+        <li>Mitigating brute-force intrusions and rate-limit violations.</li>
+      </ul>
+    </div>
+
+    <div class="glass-card card-inner" style="padding: 32px; margin-bottom: 24px; border-radius: 16px;">
+      <h2 style="font-size: 1.25rem; color: var(--cyan); margin-bottom: 12px; font-weight: 700;">3. External Intelligence Interfaces</h2>
+      <p style="color: var(--muted); line-height: 1.7; margin-bottom: 12px;">
+        To deliver comprehensive multi-engine corroboration, external lookups query:
+      </p>
+      <ul style="color: var(--muted); line-height: 2; padding-left: 20px;">
+        <li><strong style="color: var(--text);">VirusTotal Engine:</strong> Multi-vendor malware verdict correlation.</li>
+        <li><strong style="color: var(--text);">Google Safe Browsing:</strong> Blacklist corroboration for zero-day distribution domains.</li>
+        <li><strong style="color: var(--text);">DNS-over-HTTPS & RDAP:</strong> Authoritative name servers and domain age extraction.</li>
+      </ul>
+    </div>
+
+    <div class="glass-card card-inner" style="padding: 32px; margin-bottom: 24px; border-radius: 16px;">
+      <h2 style="font-size: 1.25rem; color: var(--cyan); margin-bottom: 12px; font-weight: 700;">4. Cryptographic Storage & Isolation</h2>
+      <p style="color: var(--muted); line-height: 1.8;">
+        User passwords undergo PBKDF2 hashing with high iteration counts and individual salts. Local sessions use modern web security headers, HTTP strict transport standards, and zero plaintext credential logging.
+      </p>
+    </div>
+
+    <div class="glass-card card-inner" style="padding: 32px; border-radius: 16px;">
+      <h2 style="font-size: 1.25rem; color: var(--cyan); margin-bottom: 12px; font-weight: 700;">5. Analyst Inquiries</h2>
+      <p style="color: var(--muted); line-height: 1.7;">
+        For privacy queries, data purge requests, or security disclosures: <strong style="color: var(--text);">privacy@phishguard.ai</strong>.
+      </p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="brand-info" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <svg style="width: 20px; height: 20px; color: #38bdf8;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          <span style="font-weight: 700; color: #fff;">PhishGuard <span style="color: #38bdf8;">AI</span></span>
+        </div>
+        <p>Enterprise-grade phishing detection and threat intelligence platform powered by advanced multi-modal heuristic models.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Threat Tools</h4>
+        <a href="link-scanner.html">URL Scanner</a>
+        <a href="email-analyzer.html">Email Analyzer</a>
+        <a href="sms-analyzer.html">SMS Scanner</a>
+        <a href="code-analyzer.html">Code Audit</a>
+      </div>
+      <div class="footer-links">
+        <h4>Platform</h4>
+        <a href="dashboard.html">SOC Dashboard</a>
+        <a href="data-breach.html">Breach Intelligence</a>
+        <a href="about.html">Architecture & About</a>
+      </div>
+      <div class="footer-links">
+        <h4>Trust & Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 PhishGuard AI Systems. Enterprise Security Research Division.</p>
+    </div>
+  </footer>
+</body>
+</html>

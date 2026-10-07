@@ -1,13 +1,6 @@
-const isStaticHost = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
 let token = localStorage.getItem('token') || '';
 if (!token) {
-  if (isStaticHost) {
-    token = 'gh_pages_guest_' + Date.now();
-    localStorage.setItem('token', token);
-    localStorage.setItem('username', 'Guest Analyst');
-  } else {
-    window.location.href = 'login.html';
-  }
+  window.location.href = 'login.html';
 }
 
 function analyzeHeaders(headers) {
@@ -673,3 +666,128 @@ function logout() {
   localStorage.removeItem('user');
   window.location.href = 'login.html';
 }
+
+// ============================================================
+// UI ANIMATIONS & SCROLL OBSERVERS (Modern Freelance Style)
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Navbar Scroll Effect
+  const navbar = document.querySelector('.navbar');
+  if (navbar) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 20) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+  }
+
+  // 2. Reveal on Scroll (Intersection Observer)
+  const revealElements = document.querySelectorAll('.reveal');
+  const revealOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('active');
+      observer.unobserve(entry.target);
+    });
+  }, revealOptions);
+
+  revealElements.forEach(el => revealOnScroll.observe(el));
+
+  // ============================================================
+  // EML Drag & Drop Parsing
+  // ============================================================
+  const dropZone = document.getElementById('emlDropZone');
+  const fileInput = document.getElementById('emlFileInput');
+
+  if (dropZone && fileInput) {
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleEmlFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleEmlFile(e.target.files[0]);
+      }
+    });
+  }
+
+  async function handleEmlFile(file) {
+    if (!file.name.endsWith('.eml') && !file.name.endsWith('.txt')) {
+      alert("Please upload a valid .eml file");
+      return;
+    }
+    dropZone.querySelector('.drop-text').innerHTML = "⏳ Parsing email...";
+    try {
+      const buffer = await file.arrayBuffer();
+      // postal-mime is loaded globally via CDN
+      if (typeof PostalMime !== 'undefined') {
+        const parser = new PostalMime();
+        const email = await parser.parse(buffer);
+        
+        let senderStr = email.from ? `${email.from.name || ''} <${email.from.address || ''}>`.trim() : '';
+        let replyToStr = email.replyTo ? `${email.replyTo[0]?.name || ''} <${email.replyTo[0]?.address || ''}>`.trim() : '';
+        
+        document.getElementById("sender").value = senderStr;
+        document.getElementById("replyto").value = replyToStr !== senderStr ? replyToStr : '';
+        document.getElementById("subject").value = email.subject || '';
+        document.getElementById("body").value = email.text || email.html || '';
+        
+        dropZone.querySelector('.drop-text').innerHTML = "✅ Email loaded successfully!<br><small>Click 'Run Analysis'</small>";
+        setTimeout(() => {
+          dropZone.querySelector('.drop-text').innerHTML = "Drag & Drop an <strong>.eml</strong> file here<br><small>or click to upload and auto-fill</small>";
+        }, 3000);
+      } else {
+        alert("PostalMime library not loaded.");
+        dropZone.querySelector('.drop-text').innerHTML = "Drag & Drop an <strong>.eml</strong> file here<br><small>or click to upload and auto-fill</small>";
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to parse EML file.");
+      dropZone.querySelector('.drop-text').innerHTML = "Drag & Drop an <strong>.eml</strong> file here<br><small>or click to upload and auto-fill</small>";
+    }
+  }
+
+  // ============================================================
+  // Web Share Target Parsing
+  // ============================================================
+  // When a user shares text to the app, it might arrive as query params
+  const urlParams = new URLSearchParams(window.location.search);
+  const sharedTitle = urlParams.get('title');
+  const sharedText = urlParams.get('text');
+  const sharedUrl = urlParams.get('url');
+
+  if (sharedTitle || sharedText || sharedUrl) {
+    if (document.getElementById("subject")) {
+      document.getElementById("subject").value = sharedTitle || '';
+    }
+    if (document.getElementById("body")) {
+      document.getElementById("body").value = [sharedText, sharedUrl].filter(Boolean).join('\n\n');
+    }
+    // Clean up URL so they can refresh normally
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+});
+

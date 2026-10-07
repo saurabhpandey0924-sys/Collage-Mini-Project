@@ -332,6 +332,121 @@ def check_hibp_pwned(secret_string):
     except Exception:
         return {"breached": False, "count": 0, "risk": "Unknown"}
 
+def query_live_email_breach(email, bypass_cache=False):
+    """
+    Queries real-time global data breach records from XposedOrNot open API.
+    Returns live breach details (Company, Year, Records, Compromised Data, Severity).
+    Falls back to None if offline or error.
+    """
+    if not email or not isinstance(email, str):
+        return None
+
+    clean_email = email.strip().lower()
+    cache_key = f"breach_live:{clean_email}"
+    if not bypass_cache:
+        cached = scan_cache.get(cache_key)
+        if cached:
+            return cached
+
+    try:
+        url = f"https://api.xposedornot.com/v1/breach-analytics?email={clean_email}"
+        headers = {"User-Agent": "PhishGuard-Enterprise-Threat-Intel/2.0"}
+        resp = requests.get(url, headers=headers, timeout=5.0)
+
+        if resp.status_code == 200:
+            data = resp.json()
+            if "Error" in data and data.get("Error") == "Not found":
+                result = {
+                    "breached": False,
+                    "breach_count": 0,
+                    "breaches": [],
+                    "message": f"✅ Verified Clean (Live Dark Web Scan): No public data breaches discovered for '{email}'.",
+                    "risk_level": "Safe",
+                    "source": "Live Dark Web Intelligence (XposedOrNot API)"
+                }
+                scan_cache.set(cache_key, result, ttl_seconds=86400)
+                return result
+
+            exposed = data.get("ExposedBreaches") or {}
+            raw_details = exposed.get("breaches_details") if isinstance(exposed, dict) else []
+            raw_details = raw_details or []
+            
+            if not raw_details:
+                result = {
+                    "breached": False,
+                    "breach_count": 0,
+                    "breaches": [],
+                    "message": f"✅ Verified Clean (Live Dark Web Scan): No public data breaches discovered for '{email}'.",
+                    "risk_level": "Safe",
+                    "source": "Live Dark Web Intelligence (XposedOrNot API)"
+                }
+                scan_cache.set(cache_key, result, ttl_seconds=86400)
+                return result
+            
+            breaches_list = []
+            for b in raw_details:
+                p_risk = b.get("password_risk", "unknown")
+                severity = "Critical" if p_risk in ["plaintext", "easytocrack"] else ("High" if "Passwords" in b.get("xposed_data", "") else "Medium")
+                
+                breaches_list.append({
+                    "name": b.get("breach", "Unknown Platform"),
+                    "year": str(b.get("xposed_date", "Unknown")),
+                    "records": f"{b.get('xposed_records', 0):,} Records" if b.get('xposed_records') else "Millions",
+                    "data_leaked": b.get("xposed_data", "").replace(";", ", ") or "Email addresses, Account credentials",
+                    "severity": severity,
+                    "details": b.get("details", "")
+                })
+
+            # Sort breaches chronologically descending (Newest first, e.g. 2026, 2024, 2021...)
+            def extract_year(item):
+                try:
+                    import re
+                    m = re.search(r'\b(20\d\d|19\d\d)\b', str(item.get("year", "")))
+                    return int(m.group(1)) if m else 0
+                except Exception:
+                    return 0
+
+            breaches_list.sort(key=extract_year, reverse=True)
+
+            latest_yr = breaches_list[0]["year"] if breaches_list else "Unknown"
+            oldest_yr = breaches_list[-1]["year"] if breaches_list else "Unknown"
+
+            if len(breaches_list) == 1:
+                display_msg = f"🚨 Dark Web Exposure Detected: '{email}' was compromised in {latest_yr} ({breaches_list[0]['name']}). No new breaches reported in 2026."
+            else:
+                display_msg = f"🚨 Multiple Exposures Found ({len(breaches_list)} total): History spans from {oldest_yr} to {latest_yr} (Newest: {breaches_list[0]['name']} in {latest_yr})."
+
+            result = {
+                "breached": len(breaches_list) > 0,
+                "breach_count": len(breaches_list),
+                "latest_breach_year": latest_yr,
+                "oldest_breach_year": oldest_yr,
+                "current_year_status": "No new breaches reported in 2026" if latest_yr != "2026" else "Exposed in 2026",
+                "breaches": breaches_list,
+                "message": display_msg,
+                "risk_level": "Critical" if any(b["severity"] == "Critical" for b in breaches_list) else "High",
+                "source": "Live Dark Web Intelligence (XposedOrNot API)"
+            }
+            scan_cache.set(cache_key, result, ttl_seconds=86400)
+            return result
+
+        elif resp.status_code == 404:
+            result = {
+                "breached": False,
+                "breach_count": 0,
+                "breaches": [],
+                "message": f"✅ Verified Clean (Live Dark Web Scan): No public data breaches discovered for '{email}'.",
+                "risk_level": "Safe",
+                "source": "Live Dark Web Intelligence (XposedOrNot API)"
+            }
+            scan_cache.set(cache_key, result, ttl_seconds=86400)
+            return result
+
+    except Exception as e:
+        print(f"[WARN] Live breach API error: {e}")
+
+    return None
+
 def query_virustotal_url(url):
     """
     Queries live VirusTotal v3 API if VIRUSTOTAL_API_KEY is configured.

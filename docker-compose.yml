@@ -1,4 +1,5 @@
-version: '3.8'
+# PhishGuard Docker Compose - Production Configuration
+# Copy .env.example to .env and set your secrets before running.
 
 services:
   web:
@@ -11,9 +12,10 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - DATABASE_URL=postgresql://phishuser:phishpassword@db:5432/phishguard_db
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-phishuser}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-phishguard_db}
       - REDIS_URL=redis://cache:6379/0
-      - JWT_SECRET=phishguard_production_secret_key_change_in_prod_2026
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set in .env}
     depends_on:
       db:
         condition: service_healthy
@@ -27,9 +29,9 @@ services:
     container_name: phishguard-postgres
     restart: always
     environment:
-      POSTGRES_USER: phishuser
-      POSTGRES_PASSWORD: phishpassword
-      POSTGRES_DB: phishguard_db
+      POSTGRES_USER: ${POSTGRES_USER:-phishuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-phishguard_db}
     ports:
       - "5432:5432"
     volumes:

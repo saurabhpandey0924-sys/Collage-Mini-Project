@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "PhishGuard Analyzer Shortcut",
+  "version": "1.0",
+  "description": "Quickly analyze selected text for phishing by sending it to PhishGuard.",
+  "permissions": ["contextMenus", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open PhishGuard"
+  },
+  "icons": {
+    "128": "icon128.png"
+  }
+}

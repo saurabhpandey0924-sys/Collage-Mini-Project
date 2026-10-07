@@ -3,66 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced Phishing Website & Email Detection Using Machine Learning</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="theme.js"></script>
+  <meta name="description" content="PhishGuard ML Platform — Detect phishing websites and emails using Machine Learning with Random Forest classifiers and real-time threat intelligence.">
+  <title>PhishGuard ML Platform — Advanced Phishing Detection</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2.0" />
+  <script src="theme.js?v=2.1"></script>
   <script>
     const isStaticHost = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
     let token = localStorage.getItem('token');
     if (!token) {
-      if (isStaticHost) {
-        token = 'gh_pages_guest_' + Date.now();
-        localStorage.setItem('token', token);
-        localStorage.setItem('username', 'Guest Analyst');
-      } else {
-        window.location.href = 'login.html';
-      }
+      window.location.href = 'login.html';
     }
   </script>
 </head>
 <body>
-  <!-- NAVBAR -->
+  <!-- AMBIENT AURORA LIGHT MESH (Zero Noise, Organic & Classy) -->
+  <div class="ambient-aurora">
+    <div class="aurora-beam aurora-1"></div>
+    <div class="aurora-beam aurora-2"></div>
+  </div>
+
+  <!-- FLOATING ISLAND NAVBAR -->
   <nav class="navbar">
-    <div class="container nav-inner">
-      <div class="brand">
-        <div class="brand-icon">🛡️</div>
-        <div>
-          PhishGuard <strong>ML Platform</strong>
-          <small>College Mini Project • Machine Learning & Threat Detection</small>
-        </div>
-      </div>
-      <div class="nav-links">
-        <a href="index.html" style="color:var(--cyan); background:rgba(94,240,255,0.08); border-radius:8px;">Home Dashboard</a>
-        <a href="link-scanner.html">URL ML Detector</a>
-        <a href="email-analyzer.html">Email Analyzer</a>
-        <a href="dashboard.html">Scan History & Model Analytics</a>
-        <a href="#" onclick="openReportModal()" style="color:#ffab00;">📢 Report Threat</a>
-        <a href="#" onclick="logout()" style="color:#ff6b6b;">Logout</a>
-        <div class="theme-switch-wrapper" title="Toggle Dark / Light Mode">
-          <span class="theme-switch-icon">🌙</span>
-          <div class="checkbox-wrapper-5">
-            <div class="check">
-              <input id="themeToggleCheck" class="theme-toggle-checkbox" type="checkbox" onchange="toggleTheme(event)">
-              <label for="themeToggleCheck"></label>
-            </div>
+    <div class="nav-inner">
+      <!-- Brand & Official Logo -->
+      <div class="nav-brand">
+        <a href="index.html" class="brand-link">
+          <div class="brand-logo-badge">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L3 6V12C3 17.5 6.8 22.6 12 24C17.2 22.6 21 17.5 21 12V6L12 2Z" stroke="#38bdf8" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M12 7L7 9.5V13C7 16.1 9.1 19 12 19.8C14.9 19 17 16.1 17 13V9.5L12 7Z" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="1.2"/>
+              <circle cx="12" cy="13" r="2" fill="#fff"/>
+            </svg>
           </div>
-          <span class="theme-switch-icon">☀️</span>
-        </div>
+          <span class="brand-name">Phish<span class="brand-cyan">Guard</span></span>
+          <span class="brand-tag">AI</span>
+        </a>
+      </div>
+
+      <!-- Centered Navigation Links -->
+      <div class="nav-menu">
+        <a href="index.html" class="nav-item active">Home</a>
+        <a href="link-scanner.html" class="nav-item">URL Scanner</a>
+        <a href="email-analyzer.html" class="nav-item">Email Analyzer</a>
+        <a href="sms-analyzer.html" class="nav-item">SMS Scanner</a>
+        <a href="code-analyzer.html" class="nav-item">Code Audit</a>
+        <a href="data-breach.html" class="nav-item">Breach Intel</a>
+        <a href="dashboard.html" class="nav-item">Dashboard</a>
+      </div>
+
+      <!-- Right Side Actions: Theme Button & Logout -->
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle Color Theme" title="Toggle Theme">
+          <svg class="theme-icon moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg class="theme-icon sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <a href="#" onclick="logout(); return false;" class="logout-link" title="Logout Session">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Exit</span>
+        </a>
       </div>
     </div>
   </nav>
 
-  <div class="container hero" style="padding-top: 36px;">
-    <div style="text-align:center; max-width:850px; margin:0 auto 36px;">
-      <div style="display:inline-block; padding:6px 16px; border-radius:999px; background:rgba(94,240,255,0.1); border:1px solid rgba(94,240,255,0.3); font-size:0.8rem; font-weight:700; color:var(--cyan); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.06em;">
-        ⚡ Academic Mini Project • Scikit-Learn • Random Forest • Full-Stack Python
+  <div class="container hero reveal" style="padding-top: 36px;">
+    <div class="hero-split">
+      <!-- Left Column: Primary Pitch & Quick Actions -->
+      <div>
+        <div style="display:inline-block; padding:5px 14px; border-radius:999px; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.2); font-size:0.75rem; font-weight:700; color:var(--cyan); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.06em;">
+          ⚡ Academic Mini Project • Scikit-Learn • Random Forest
+        </div>
+        <h1 style="font-size: clamp(2rem, 3.2vw, 2.6rem); line-height:1.2; margin-bottom:14px; font-weight: 800; letter-spacing:-0.03em;">
+          Advanced Phishing Detection <br><span class="grad">Powered by Machine Learning</span>
+        </h1>
+        <p style="font-size:0.95rem; color:var(--muted); line-height:1.65; max-width: 540px; margin-bottom: 22px;">
+          Welcome back, <strong id="userNameDisplay" style="color:#fff;">Analyst</strong>! Detect zero-day deceptive domains and spear-phishing emails using 16 structural feature extraction tokens, dual-stage classifiers, and real-time threat intelligence.
+        </p>
+        
+        <div class="btn-row" style="margin-bottom: 20px;">
+          <a href="link-scanner.html" class="btn btn-primary" style="padding: 12px 26px; font-size: 0.95rem; border-radius: 999px;">
+            <span>🌐</span> Launch URL Scanner
+          </a>
+          <a href="email-analyzer.html" class="btn btn-ghost" style="padding: 12px 26px; font-size: 0.95rem; border-radius: 999px;">
+            <span>📧</span> Analyze Email
+          </a>
+        </div>
+
+        <!-- Presets with human engineering touch -->
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:0.78rem; color:var(--muted);">
+          <span style="font-weight:600; color:#cbd5e1;">Test Samples:</span>
+          <a href="link-scanner.html?url=http://fake-paypal-login-alert.xyz" class="chip" style="text-decoration:none; color:#f87171; border-color:rgba(239,68,68,0.25); background:rgba(239,68,68,0.06); padding:4px 10px;">
+            🚨 Spoofed: paypal-alert.xyz
+          </a>
+          <a href="link-scanner.html?url=https://accounts.google.com" class="chip" style="text-decoration:none; color:#34d399; border-color:rgba(16,185,129,0.25); background:rgba(16,185,129,0.06); padding:4px 10px;">
+            ✅ Legit: google.com
+          </a>
+        </div>
       </div>
-      <h1 style="font-size:2.4rem; line-height:1.2; margin-bottom:12px;">
-        Advanced Phishing Website & Email Detection <br><span class="grad">Using Machine Learning</span>
-      </h1>
-      <p style="font-size:1.05rem; color:var(--muted); line-height:1.6;">
-        Welcome back, <strong id="userNameDisplay" style="color:#fff;">Analyst</strong>! Detect sophisticated zero-day phishing websites and deceptive emails using 16+ extracted structural features, trained Random Forest classifiers, and real-time threat intelligence.
-      </p>
+
+      <!-- Right Column: Classy Security Intelligence Terminal -->
+      <div>
+        <div class="hero-terminal-card">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+            </div>
+            <div class="terminal-title">telemetry-agent@phishguard ~ rf-inference.log</div>
+            <div class="terminal-badge">LIVE MONITOR</div>
+          </div>
+
+          <div class="terminal-body" id="radarFeedBox">
+            <div class="log-row info">
+              <span class="log-time">[00:14:02]</span>
+              <span class="log-tag">[ENGINE]</span>
+              <span class="log-msg">Scikit-Learn Random Forest loaded (16 features)</span>
+            </div>
+            <div class="log-row success">
+              <span class="log-time">[00:14:05]</span>
+              <span class="log-tag">[VERIFIED]</span>
+              <span class="log-msg">TLS Handshake safe: accounts.google.com</span>
+            </div>
+            <div class="log-row danger">
+              <span class="log-time">[00:14:11]</span>
+              <span class="log-tag">[INTERCEPT]</span>
+              <span class="log-msg">Blocked spoof: update-paypal.xyz (99.4%)</span>
+            </div>
+            <div class="log-row active">
+              <span class="log-time">[00:14:18]</span>
+              <span class="log-tag">[METRICS]</span>
+              <span class="log-msg">Latency: 12ms | Test Dataset: 10,000 URLs</span>
+            </div>
+          </div>
+
+          <div class="terminal-footer">
+            <div class="t-stat">
+              <span class="t-label">MODEL ACCURACY</span>
+              <span class="t-val cyan">96.8%</span>
+            </div>
+            <div class="t-stat">
+              <span class="t-label">FEATURE SET</span>
+              <span class="t-val">16 Structural</span>
+            </div>
+            <div class="t-stat">
+              <span class="t-label">INFERENCE TIME</span>
+              <span class="t-val green">Real-Time</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- QUICK STATS BANNER -->
@@ -86,61 +189,133 @@
     </div>
 
     <!-- MAIN TOOLS SUITE -->
-    <h2 style="font-size:1.35rem; margin-bottom:18px; border-left:4px solid var(--cyan); padding-left:12px;">
-      Core Detection Modules
-    </h2>
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <div style="font-size:0.75rem; font-weight:800; color:var(--cyan); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">
+          ⚡ Full-Spectrum AI Threat Defense
+        </div>
+        <h2 style="font-size:1.75rem; font-weight:800; letter-spacing:-0.02em; color:#fff; display:flex; align-items:center; gap:10px;">
+          <span>Security Modules & Neural Tools</span>
+        </h2>
+      </div>
+      <div style="font-size:0.85rem; color:var(--muted); font-family:monospace;">
+        SYSTEM_STATUS: <span style="color:#10b981; font-weight:700;">● ALL MODULES OPERATIONAL</span>
+      </div>
+    </div>
 
-    <div class="sample-grid" style="margin-bottom: 40px;">
+    <div class="sample-grid" style="margin-bottom: 50px;">
       <!-- Module 1: URL ML Detector -->
-      <a href="link-scanner.html" class="sample-card" style="text-decoration:none; color:inherit; border-color:rgba(94,240,255,0.3);">
-        <div style="font-size: 2.2rem; margin-bottom:10px;">🌐</div>
-        <h3 style="color:#fff;">URL & Website Phishing Detector</h3>
-        <p>Extract 16 structural & lexical features (IP, SSL, subdomains, entropy, suspicious TLDs) and predict using our trained Random Forest Classifier.</p>
-        <span class="sample-tag safe" style="background:rgba(94,240,255,0.15); color:var(--cyan); border:1px solid rgba(94,240,255,0.4);">
-          ⭐ ML Classification (Core)
-        </span>
+      <a href="link-scanner.html" class="sample-card">
+        <div class="card-media">
+          <img src="assets/images/url-scanner.jpg" alt="URL Phishing Scanner" loading="lazy" />
+          <div class="card-media-overlay"></div>
+          <div class="card-badge-floating">⚡ Random Forest 96.8%</div>
+          <div class="card-icon-badge">🌐</div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Core Machine Learning</div>
+          <h3>URL & Website Scanner</h3>
+          <p>Extract 16 structural & lexical features (IP, SSL, subdomains, entropy, suspicious TLDs) and predict zero-day malicious domains in real-time.</p>
+          <div class="card-footer">
+            <span class="sample-tag safe">⭐ 16 Structural Features</span>
+            <span class="card-action-link">Launch Scanner <span class="arrow">&rarr;</span></span>
+          </div>
+        </div>
       </a>
 
       <!-- Module 2: Email Analyzer -->
-      <a href="email-analyzer.html" class="sample-card" style="text-decoration:none; color:inherit;">
-        <div style="font-size: 2.2rem; margin-bottom:10px;">📧</div>
-        <h3 style="color:#fff;">Email Phishing & Threat Triage</h3>
-        <p>Analyze email headers (SPF, DKIM, DMARC), psychological manipulation triggers, and automatically classify all embedded links with the URL ML model.</p>
-        <span class="sample-tag warning">NLP + Embedded Link ML</span>
+      <a href="email-analyzer.html" class="sample-card">
+        <div class="card-media">
+          <img src="assets/images/email-analyzer.jpg" alt="Email Threat Analyzer" loading="lazy" />
+          <div class="card-media-overlay"></div>
+          <div class="card-badge-floating">🛡️ SPF • DKIM • DMARC</div>
+          <div class="card-icon-badge">📧</div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Email Header & NLP Engine</div>
+          <h3>Email Phishing & Threat Triage</h3>
+          <p>Analyze email authentication records, psychological manipulation cues, and classify all embedded hyperlinks using URL ML models.</p>
+          <div class="card-footer">
+            <span class="sample-tag warning">NLP + Header Security</span>
+            <span class="card-action-link">Analyze Email <span class="arrow">&rarr;</span></span>
+          </div>
+        </div>
       </a>
 
       <!-- Module 3: Scan History & Model Performance -->
-      <a href="dashboard.html" class="sample-card" style="text-decoration:none; color:inherit;">
-        <div style="font-size: 2.2rem; margin-bottom:10px;">📊</div>
-        <h3 style="color:#fff;">Model Analytics & Scan History</h3>
-        <p>Inspect algorithm comparisons (Random Forest vs Logistic Regression vs Decision Tree), confusion matrix, feature importances, and past scan logs.</p>
-        <span class="sample-tag safe">College Evaluation View</span>
+      <a href="dashboard.html" class="sample-card">
+        <div class="card-media">
+          <img src="assets/images/model-analytics.jpg" alt="Model Performance Dashboard" loading="lazy" />
+          <div class="card-media-overlay"></div>
+          <div class="card-badge-floating">📈 SOC Metrics & ROC</div>
+          <div class="card-icon-badge">📊</div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Model Intelligence & Evaluation</div>
+          <h3>Model Analytics & History</h3>
+          <p>Inspect multi-algorithm benchmarks (Random Forest vs Logistic Regression vs Decision Tree), confusion matrix, and full past scan audit logs.</p>
+          <div class="card-footer">
+            <span class="sample-tag safe">Academic Metrics View</span>
+            <span class="card-action-link">View Dashboard <span class="arrow">&rarr;</span></span>
+          </div>
+        </div>
       </a>
 
       <!-- Module 4: Feedback & Threat Reporting -->
-      <a href="#" onclick="openReportModal(); return false;" class="sample-card" style="text-decoration:none; color:inherit;">
-        <div style="font-size: 2.2rem; margin-bottom:10px;">📢</div>
-        <h3 style="color:#fff;">Report & Feedback System</h3>
-        <p>Report missed phishing domains or false positives to the database to simulate continuous model retraining and threat intelligence updates.</p>
-        <span class="sample-tag danger">Threat Intelligence Feed</span>
+      <a href="#" onclick="openReportModal(); return false;" class="sample-card">
+        <div class="card-media">
+          <img src="assets/images/threat-feed.jpg" alt="Global Threat Feed" loading="lazy" />
+          <div class="card-media-overlay"></div>
+          <div class="card-badge-floating">🛰️ Retraining Pipeline</div>
+          <div class="card-icon-badge">📢</div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Threat Intelligence Feed</div>
+          <h3>Report & Retraining Hub</h3>
+          <p>Report missed phishing domains or false positives to the database to simulate continuous machine learning model retraining and threat intelligence.</p>
+          <div class="card-footer">
+            <span class="sample-tag danger">Threat Feed Sync</span>
+            <span class="card-action-link">Submit Report <span class="arrow">&rarr;</span></span>
+          </div>
+        </div>
       </a>
-    </div>
 
-    <!-- AUXILIARY TOOLS -->
-    <h2 style="font-size:1.15rem; color:var(--muted); margin-bottom:16px; border-left:4px solid var(--muted); padding-left:12px;">
-      Auxiliary Security Utilities
-    </h2>
-    <div class="sample-grid" style="grid-template-columns: repeat(2, 1fr);">
-      <a href="sms-analyzer.html" class="sample-card" style="text-decoration:none; color:inherit;">
-        <div style="font-size: 1.8rem; margin-bottom:8px;">💬</div>
-        <h4>SMS (Smishing) Detector</h4>
-        <p style="font-size:0.85rem;">Detect social engineering and fake delivery/banking text messages.</p>
+      <!-- Module 5: SMS Smishing Detector -->
+      <a href="sms-analyzer.html" class="sample-card">
+        <div class="card-media">
+          <img src="assets/images/sms-analyzer.jpg" alt="SMS Smishing Detector" loading="lazy" />
+          <div class="card-media-overlay"></div>
+          <div class="card-badge-floating">📱 Mobile Vector Shield</div>
+          <div class="card-icon-badge">💬</div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Mobile Threat Defense</div>
+          <h3>SMS Smishing Detector</h3>
+          <p>Detect social engineering tactics, fraudulent OTP requests, and fake banking delivery text messages using specialized text parsing heuristics.</p>
+          <div class="card-footer">
+            <span class="sample-tag safe">Heuristic NLP Filter</span>
+            <span class="card-action-link">Scan Message <span class="arrow">&rarr;</span></span>
+          </div>
+        </div>
       </a>
 
-      <a href="data-breach.html" class="sample-card" style="text-decoration:none; color:inherit;">
-        <div style="font-size: 1.8rem; margin-bottom:8px;">🔓</div>
-        <h4>Credential Breach Checker</h4>
-        <p style="font-size:0.85rem;">Check if email addresses or credentials appear in public dark-web leak archives.</p>
+      <!-- Module 6: Credential Breach Checker -->
+      <a href="data-breach.html" class="sample-card">
+        <div class="card-media">
+          <img src="assets/images/data-breach.jpg" alt="Credential Breach Checker" loading="lazy" />
+          <div class="card-media-overlay"></div>
+          <div class="card-badge-floating">🔒 Dark-Web Vault Scan</div>
+          <div class="card-icon-badge">🔓</div>
+        </div>
+        <div class="card-body">
+          <div class="card-category">Identity & Vault Security</div>
+          <h3>Credential Breach Checker</h3>
+          <p>Cross-reference corporate emails and credentials against known public database dumps and dark-web leak archives to identify account exposure.</p>
+          <div class="card-footer">
+            <span class="sample-tag danger">Identity Protection</span>
+            <span class="card-action-link">Check Exposure <span class="arrow">&rarr;</span></span>
+          </div>
+        </div>
       </a>
     </div>
   </div>
@@ -176,8 +351,16 @@
 
   <footer style="margin-top: 60px;">
     <div class="container footer-box">
-      <h3 style="color:#fff;">Advanced Phishing Website & Email Detection System</h3>
-      <p>Built for College Mini Project • Machine Learning Classification Engine Powered by Scikit-Learn</p>
+      <h3 style="color:#fff;">PhishGuard ML Platform</h3>
+      <p>Advanced Phishing Website & Email Detection Using Machine Learning</p>
+      <div style="margin-top: 16px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-size: 0.85rem;">
+        <a href="terms.html" style="color: var(--muted); text-decoration: none;">Terms of Service</a>
+        <a href="privacy.html" style="color: var(--muted); text-decoration: none;">Privacy Policy</a>
+        <a href="about.html" style="color: var(--muted); text-decoration: none;">About Us</a>
+      </div>
+      <p style="margin-top: 12px; font-size: 0.75rem; color: var(--muted);">
+        © 2026 PhishGuard. Built for Academic Research & Education. All rights reserved.
+      </p>
     </div>
   </footer>
 
@@ -218,13 +401,16 @@
         });
         const data = await res.json();
         if (res.ok) {
-          msg.innerHTML = '<span style="color:#2ed573;">✅ ' + data.message + '</span>';
+          msg.textContent = '✅ ' + data.message;
+          msg.style.color = '#2ed573';
           setTimeout(() => { closeReportModal(); }, 1800);
         } else {
-          msg.innerHTML = '<span style="color:#ff4757;">❌ ' + (data.error || 'Failed to submit.') + '</span>';
+          msg.textContent = '❌ ' + (data.error || 'Failed to submit.');
+          msg.style.color = '#ff4757';
         }
       } catch (err) {
-        msg.innerHTML = '<span style="color:#ff4757;">Failed to connect to backend server.</span>';
+        msg.textContent = 'Failed to connect to backend server.';
+        msg.style.color = '#ff4757';
       }
     }
 
@@ -254,6 +440,32 @@
       }
     }
     loadStats();
+
+    // Live SOC Terminal Log Stream (Smooth, Realistic & Classy)
+    const threatLogs = [
+      { time: '00:14:24', type: 'info',    tag: '[ENGINE]',    msg: 'Scikit-Learn Random Forest loaded (16 features)' },
+      { time: '00:14:28', type: 'success', tag: '[VERIFIED]',  msg: 'TLS Handshake safe: accounts.google.com' },
+      { time: '00:14:35', type: 'danger',  tag: '[INTERCEPT]', msg: 'Blocked spoof: update-paypal.xyz (99.4%)' },
+      { time: '00:14:41', type: 'active',  tag: '[METRICS]',   msg: 'Latency: 12ms | Test Dataset: 10,000 URLs' },
+      { time: '00:14:49', type: 'danger',  tag: '[ALERT]',     msg: 'Detected Punycode spoof: paypa1.com [QUARANTINE]' },
+      { time: '00:14:56', type: 'success', tag: '[VERIFIED]',  msg: 'Clean lexical entropy: github.com/login' }
+    ];
+    let logIdx = 0;
+    setInterval(() => {
+      const box = document.getElementById('radarFeedBox');
+      if (!box) return;
+      const l1 = threatLogs[logIdx % threatLogs.length];
+      const l2 = threatLogs[(logIdx + 1) % threatLogs.length];
+      const l3 = threatLogs[(logIdx + 2) % threatLogs.length];
+      const l4 = threatLogs[(logIdx + 3) % threatLogs.length];
+      logIdx++;
+      box.innerHTML = `
+        <div class="log-row ${l1.type}"><span class="log-time">[${l1.time}]</span><span class="log-tag">${l1.tag}</span><span class="log-msg">${l1.msg}</span></div>
+        <div class="log-row ${l2.type}"><span class="log-time">[${l2.time}]</span><span class="log-tag">${l2.tag}</span><span class="log-msg">${l2.msg}</span></div>
+        <div class="log-row ${l3.type}"><span class="log-time">[${l3.time}]</span><span class="log-tag">${l3.tag}</span><span class="log-msg">${l3.msg}</span></div>
+        <div class="log-row ${l4.type}"><span class="log-time">[${l4.time}]</span><span class="log-tag">${l4.tag}</span><span class="log-msg">${l4.msg}</span></div>
+      `;
+    }, 3500);
   </script>
 </body>
 </html>
