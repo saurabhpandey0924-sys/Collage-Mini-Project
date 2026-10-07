@@ -70,6 +70,16 @@
       100% { transform: translate(-20px, 40px) scale(0.96); }
     }
 
+    /* GLOBAL CONTAINER & LAYOUT RESTRAINT (Eliminates excessive wide stretch) */
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
     /* FLOATING ISLAND NAVBAR */
     .navbar {
       position: sticky;
@@ -77,7 +87,7 @@
       z-index: 1000;
       padding: 0;
       margin: 10px auto 0;
-      width: min(1280px, 94%);
+      width: min(1120px, calc(100% - 32px));
       background: transparent;
       border: none;
       transition: all 0.3s ease;
@@ -838,19 +848,79 @@
     .edu-card p { color:var(--muted); font-size:0.9rem; line-height:1.7; }
 
     /* FOOTER */
-    footer { padding:32px 0 48px; }
+    footer, .footer {
+      width: 100%;
+      padding: 50px 0 30px;
+      margin-top: 50px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(4, 9, 20, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      position: relative;
+      z-index: 10;
+    }
+    .footer-content {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 30px;
+    }
+    @media (max-width: 900px) {
+      .footer-content {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 600px) {
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+    }
+    .footer-brand p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.6;
+      margin-top: 10px;
+      max-width: 340px;
+    }
+    .footer-links h4 {
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      letter-spacing: -0.01em;
+    }
+    .footer-links a {
+      display: block;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+    .footer-links a:hover {
+      color: var(--cyan);
+      transform: translateX(3px);
+    }
+    .footer-bottom {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 20px 24px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
     .footer-box {
       background:linear-gradient(145deg,rgba(12,24,44,0.9),rgba(7,16,30,0.95));
       border:1px solid var(--line); border-radius:20px; padding:28px;
       text-align:center; position:relative; overflow:hidden;
+      max-width: 1120px;
+      margin: 0 auto;
     }
-    .footer-box::before {
-      content:""; position:absolute; inset:0;
-      background:linear-gradient(120deg,rgba(78,158,255,0.05),transparent 50%,rgba(94,240,255,0.04));
-      pointer-events:none;
-    }
-    .footer-box h3 { font-size:1.15rem; margin-bottom:8px; position:relative; z-index:1; }
-    .footer-box p { color:var(--muted); line-height:1.8; font-size:0.9rem; position:relative; z-index:1; }
 
     /* RESPONSIVE */
     @media(max-width:1100px) {
