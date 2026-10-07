@@ -240,6 +240,7 @@ async function getUrlAnalysis(body) {
   } catch (err) {
     return null;
   }
+}
 function evaluateEmailLocally(sender, replyto, subject, body, rawHeaders) {
   const fullText = (subject + ' ' + body).toLowerCase();
   const sLower = (sender || '').toLowerCase();
@@ -336,10 +337,17 @@ async function runAnalysis() {
   }
 
   const resultArea = document.getElementById("resultArea");
-  resultArea.innerHTML = '<div style="text-align:center; padding:30px;"><div class="loading-spinner" style="margin:0 auto 12px;"></div><p style="color:var(--cyan); font-weight:600;">Executing NLP Triage & URL Machine Learning Classifier...</p></div>';
+  const hudBox = document.getElementById("emailHudBox");
+  if (hudBox) {
+    resultArea.style.display = 'none';
+    hudBox.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    resultArea.innerHTML = '<div style="text-align:center; padding:30px;"><div class="loading-spinner" style="margin:0 auto 12px;"></div><p style="color:var(--cyan); font-weight:600;">Executing NLP Triage & URL Machine Learning Classifier...</p></div>';
+  }
   resultArea.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  let data = null;
+  const analysisPromise = (async () => {
+    let resData = null;
   try {
     const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '3000')) ? 'http://localhost:3000' : '';
     const token = localStorage.getItem('token') || '';
@@ -361,16 +369,25 @@ async function runAnalysis() {
     });
 
     if (response.ok) {
-      data = await response.json();
+      resData = await response.json();
     }
   } catch (netErr) {
     console.warn("Backend API unavailable, using client-side heuristic engine:", netErr);
   }
 
   // Fallback for static GitHub Pages hosting
-  if (!data) {
-    data = evaluateEmailLocally(sender, replyto, subject, body, rawHeaders);
+    if (!resData) {
+      resData = evaluateEmailLocally(sender, replyto, subject, body, rawHeaders);
+    }
+    return resData;
+  })();
+
+
+  if (hudBox && typeof runHudScanSteps === 'function') {
+    await runHudScanSteps('emailHudBox');
   }
+  const data = await analysisPromise;
+  resultArea.style.display = 'block';
 
   try {
     document.getElementById("resultTimestamp").textContent = new Date().toLocaleTimeString();
@@ -629,6 +646,7 @@ function renderSamples() {
       <span class="sample-tag ${s.tagClass}">${s.tag}</span>
     </div>
   `).join("");
+  if (window.init3DTilt) window.init3DTilt();
 }
 
 

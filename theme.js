@@ -100,4 +100,97 @@ document.addEventListener('DOMContentLoaded', () => {
   }, revealOptions);
 
   revealElements.forEach(el => revealOnScroll.observe(el));
+
+  // 3. STEP 3: 3D Magnetic Tilt Interactions
+  init3DTilt();
 });
+
+// ============================================================
+// 3D MAGNETIC TILT INTERACTION (Hardware Accelerated 60 FPS)
+// ============================================================
+function init3DTilt() {
+  const cards = document.querySelectorAll('.sample-card, .glass-card[data-tilt]');
+  cards.forEach(card => {
+    if (card.dataset.tiltBound) return;
+    card.dataset.tiltBound = 'true';
+    let bounds = null;
+    let isHovered = false;
+
+    card.addEventListener('mouseenter', () => {
+      bounds = card.getBoundingClientRect();
+      isHovered = true;
+      card.classList.remove('tilt-reset');
+      card.classList.add('is-tilting');
+    });
+
+    card.addEventListener('mousemove', (e) => {
+      if (!isHovered || !bounds) return;
+      const x = e.clientX - bounds.left;
+      const y = e.clientY - bounds.top;
+      const centerX = bounds.width / 2;
+      const centerY = bounds.height / 2;
+
+      // Max 8.5 deg tilt for a classy, premium feel
+      const rotateX = -((y - centerY) / centerY) * 8.5;
+      const rotateY = ((x - centerX) / centerX) * 8.5;
+
+      card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-6px)`;
+      card.style.setProperty('--glare-x', `${(x / bounds.width * 100).toFixed(1)}%`);
+      card.style.setProperty('--glare-y', `${(y / bounds.height * 100).toFixed(1)}%`);
+    });
+
+    card.addEventListener('mouseleave', () => {
+      isHovered = false;
+      card.classList.remove('is-tilting');
+      card.classList.add('tilt-reset');
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+    });
+  });
+}
+
+// ============================================================
+// STEP 3: MULTI-STAGE HUD SCANNER CONTROLLER
+// ============================================================
+async function runHudScanSteps(containerId, onFinish) {
+  const box = document.getElementById(containerId);
+  if (!box) {
+    if (onFinish) onFinish();
+    return;
+  }
+  box.style.display = 'block';
+
+  const steps = box.querySelectorAll('.hud-step');
+  const step1 = steps[0];
+  const step2 = steps[1];
+  const step3 = steps[2];
+  const bar = box.querySelector('.hud-progress-bar');
+
+  // Stage 1
+  if (step1) { step1.className = 'hud-step active'; const s = step1.querySelector('.step-status'); if (s) s.textContent = 'COMPUTING'; }
+  if (step2) { step2.className = 'hud-step'; const s = step2.querySelector('.step-status'); if (s) s.textContent = 'PENDING'; }
+  if (step3) { step3.className = 'hud-step'; const s = step3.querySelector('.step-status'); if (s) s.textContent = 'PENDING'; }
+  if (bar) bar.style.width = '35%';
+  await new Promise(r => setTimeout(r, 320));
+
+  // Stage 2
+  if (step1) { step1.className = 'hud-step done'; const s = step1.querySelector('.step-status'); if (s) s.textContent = 'DONE'; }
+  if (step2) { step2.className = 'hud-step active'; const s = step2.querySelector('.step-status'); if (s) s.textContent = 'INFERENCE'; }
+  if (bar) bar.style.width = '70%';
+  await new Promise(r => setTimeout(r, 380));
+
+  // Stage 3
+  if (step2) { step2.className = 'hud-step done'; const s = step2.querySelector('.step-status'); if (s) s.textContent = 'DONE'; }
+  if (step3) { step3.className = 'hud-step active'; const s = step3.querySelector('.step-status'); if (s) s.textContent = 'CORRELATING'; }
+  if (bar) bar.style.width = '100%';
+  await new Promise(r => setTimeout(r, 320));
+
+  if (step3) { step3.className = 'hud-step done'; const s = step3.querySelector('.step-status'); if (s) s.textContent = 'VERIFIED'; }
+  await new Promise(r => setTimeout(r, 180));
+
+  box.style.display = 'none';
+  if (onFinish) onFinish();
+}
+
+window.init3DTilt = init3DTilt;
+window.runHudScanSteps = runHudScanSteps;
+

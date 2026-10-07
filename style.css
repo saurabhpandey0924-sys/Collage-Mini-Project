@@ -1642,3 +1642,240 @@
 [data-theme="light"] .drop-zone .drop-text {
   color: var(--text);
 }
+
+/* =========================================================
+   STEP 3: 3D MAGNETIC TILT INTERACTION & GLASS SHEEN
+   ========================================================= */
+.sample-card,
+.glass-card[data-tilt] {
+  transform-style: preserve-3d;
+  will-change: transform;
+  position: relative;
+}
+.sample-card.is-tilting,
+.glass-card[data-tilt].is-tilting {
+  transition: transform 0.05s linear !important;
+}
+.sample-card.tilt-reset,
+.glass-card[data-tilt].tilt-reset {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.sample-card::before,
+.glass-card[data-tilt]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle 320px at var(--glare-x, 50%) var(--glare-y, 50%), rgba(56, 189, 248, 0.24), transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 5;
+}
+.sample-card:hover::before,
+.glass-card[data-tilt]:hover::before {
+  opacity: 1;
+}
+
+/* =========================================================
+   STEP 3: GLOBAL TELEMETRY TICKER RIBBON
+   ========================================================= */
+.telemetry-ticker {
+  width: min(1120px, calc(100% - 32px));
+  margin: 12px auto 0;
+  padding: 8px 18px;
+  background: rgba(8, 14, 28, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.14);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.5);
+}
+.ticker-track {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  white-space: nowrap;
+  animation: ticker-scroll 35s linear infinite;
+  width: max-content;
+}
+.telemetry-ticker:hover .ticker-track {
+  animation-play-state: paused;
+}
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 0.76rem;
+  color: #94a3b8;
+  letter-spacing: 0.02em;
+}
+.ticker-item .t-badge {
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+.ticker-item .t-badge.green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.ticker-item .t-badge.red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.ticker-item .t-badge.cyan {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+.ticker-item .t-badge.yellow {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.ticker-item .t-badge.blue {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+[data-theme="light"] .telemetry-ticker {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(15, 23, 42, 0.1);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+}
+[data-theme="light"] .ticker-item {
+  color: #475569;
+}
+
+/* =========================================================
+   STEP 3: MULTI-STAGE HUD SCANNER CONSOLE
+   ========================================================= */
+.hud-scanner-box {
+  background: rgba(8, 14, 28, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-top: 20px;
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.12);
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  text-align: left;
+}
+.hud-scanner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.hud-scanner-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.06em;
+}
+.hud-scanner-timer {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+.hud-scanner-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.hud-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: #64748b;
+  transition: all 0.25s ease;
+}
+.hud-step .step-num {
+  font-weight: 700;
+  color: #64748b;
+}
+.hud-step .step-text {
+  flex: 1;
+}
+.hud-step .step-status {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.hud-step.active {
+  color: #38bdf8;
+}
+.hud-step.active .step-num {
+  color: #38bdf8;
+}
+.hud-step.active .step-status {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  animation: hud-blink 1s infinite alternate;
+}
+.hud-step.done {
+  color: #10b981;
+}
+.hud-step.done .step-num {
+  color: #10b981;
+}
+.hud-step.done .step-status {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+@keyframes hud-blink {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+.hud-progress-line {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.hud-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  transition: width 0.3s ease;
+}
+[data-theme="light"] .hud-scanner-box {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(2, 132, 199, 0.25);
+  box-shadow: 0 15px 35px -10px rgba(15, 23, 42, 0.1);
+}
+[data-theme="light"] .hud-scanner-header {
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+[data-theme="light"] .hud-step {
+  color: #64748b;
+}
+[data-theme="light"] .hud-step.active {
+  color: #0284c7;
+}
+[data-theme="light"] .hud-step.done {
+  color: #059669;
+}
+

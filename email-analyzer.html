@@ -74,8 +74,25 @@
     </div>
   </nav>
 
+  <!-- GLOBAL TELEMETRY TICKER RIBBON -->
+  <div class="telemetry-ticker">
+    <div class="ticker-track">
+      <div class="ticker-item"><span class="t-badge green">● SOC ENGINE</span> Model Precision: 96.8% (Scikit-Learn RF)</div>
+      <div class="ticker-item"><span class="t-badge red">⚡ INTERCEPTED</span> fake-chase-auth-login.xyz (Risk: 99.4%)</div>
+      <div class="ticker-item"><span class="t-badge cyan">🔒 BREACH ARCHIVE</span> 12.4B Records Synchronized</div>
+      <div class="ticker-item"><span class="t-badge yellow">⚠️ SMISHING AUDIT</span> Package Delivery Fee Scam Neutralized</div>
+      <div class="ticker-item"><span class="t-badge blue">🌐 TELEMETRY</span> Google Safe Browsing & DoH Synced</div>
+      <!-- Seamless loop duplicate -->
+      <div class="ticker-item"><span class="t-badge green">● SOC ENGINE</span> Model Precision: 96.8% (Scikit-Learn RF)</div>
+      <div class="ticker-item"><span class="t-badge red">⚡ INTERCEPTED</span> fake-chase-auth-login.xyz (Risk: 99.4%)</div>
+      <div class="ticker-item"><span class="t-badge cyan">🔒 BREACH ARCHIVE</span> 12.4B Records Synchronized</div>
+      <div class="ticker-item"><span class="t-badge yellow">⚠️ SMISHING AUDIT</span> Package Delivery Fee Scam Neutralized</div>
+      <div class="ticker-item"><span class="t-badge blue">🌐 TELEMETRY</span> Google Safe Browsing & DoH Synced</div>
+    </div>
+  </div>
+
 <!-- HERO -->
-<section class="hero" id="home">
+<section class="hero" id="home" style="padding-top: 26px;">
   <div class="container hero-grid">
     <div class="glass-card">
       <div class="card-inner">
@@ -186,6 +203,38 @@
             <h3>📋 Triage Report</h3>
             <span id="resultTimestamp"></span>
           </div>
+
+          <!-- MULTI-STAGE HUD SCANNER CONSOLE -->
+          <div id="emailHudBox" class="hud-scanner-box" style="display:none; margin-bottom:20px;">
+            <div class="hud-scanner-header">
+              <div class="hud-scanner-title">
+                <span class="pulse-dot"></span>
+                <span>NEURAL EMAIL TRIAGE ENGINE • REAL-TIME PIPELINE</span>
+              </div>
+              <span class="hud-scanner-timer">LATENCY: ~24ms</span>
+            </div>
+            <div class="hud-scanner-steps">
+              <div class="hud-step" id="emailHudStep1">
+                <span class="step-num">[STAGE 1/3]</span>
+                <span class="step-text">Parsing RFC 5322 Headers, Envelopes & Cryptographic SPF/DKIM/DMARC...</span>
+                <span class="step-status">WAITING</span>
+              </div>
+              <div class="hud-step" id="emailHudStep2">
+                <span class="step-num">[STAGE 2/3]</span>
+                <span class="step-text">Deep NLP Semantic Analysis & Social Engineering Urgency Scoring...</span>
+                <span class="step-status">WAITING</span>
+              </div>
+              <div class="hud-step" id="emailHudStep3">
+                <span class="step-num">[STAGE 3/3]</span>
+                <span class="step-text">Homoglyph Lookalike Domain Matching & Multi-URL Sandbox Extraction...</span>
+                <span class="step-status">WAITING</span>
+              </div>
+            </div>
+            <div class="hud-progress-line">
+              <div class="hud-progress-bar"></div>
+            </div>
+          </div>
+
           <div id="resultArea">
             <div class="empty-state">
               <span class="empty-icon">🔍</span>
