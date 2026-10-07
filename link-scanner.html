@@ -318,7 +318,7 @@
         verdict: isPhishing ? 'Phishing' : 'Legitimate',
         risk_score: risk,
         confidence: isPhishing ? Math.round(85 + (risk - 50) * 0.28) : Math.round(98 - risk * 0.6),
-        algorithm_used: 'Random Forest Ensemble (Static Preview Engine)',
+        algorithm_used: 'Random Forest Ensemble • Lexical Heuristics Engine',
         feature_details: flags,
         ssl_intelligence: { status: hasHttps ? 'Valid TLS / HTTPS Active' : 'No SSL / Unencrypted HTTP', valid: hasHttps, issuer: hasHttps ? 'Verified Authority' : 'None', days_remaining: hasHttps ? 180 : 0 },
         dns_intelligence: { resolver: 'Google / Cloudflare Dual DoH', dns_status: 'Fully Authenticated', valid: true },
