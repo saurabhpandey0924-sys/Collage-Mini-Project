@@ -2913,27 +2913,82 @@
     width: 100% !important;
   }
 }/* ==========================================================================
-   INTERACTIVE CYBER MOTION LAYER CANVAS (ALL PLATFORM PAGES)
+   INTERACTIVE CYBER MOTION LAYER CANVAS & SITE-WIDE MOTION ENGINE (ALL PAGES)
    ========================================================================== */
 #cyberCanvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.92;
-  transition: opacity 0.4s ease;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  opacity: 1 !important;
+  display: block !important;
 }
 
 [data-theme="light"] #cyberCanvas {
-  opacity: 0.65;
+  opacity: 0.85 !important;
+}
+
+/* Ensure content cards sit gracefully above cyber canvas with high clarity */
+.auth-container,
+.auth-card,
+.navbar,
+.container,
+.hero-content,
+.hero-card,
+.scan-panel,
+.dashboard-grid,
+.footer {
+  position: relative;
+  z-index: 10;
+}
+
+/* CYBER MOTION SITE DYNAMICS: Floating HUD & Energy Glow */
+.cyber-motion-float {
+  animation: cyberFloat 6s ease-in-out infinite alternate;
+}
+
+@keyframes cyberFloat {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
+.auth-card {
+  animation: cyberCardFloat 8s ease-in-out infinite alternate;
+}
+
+@keyframes cyberCardFloat {
+  0% { transform: translateY(0px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.12); }
+  50% { transform: translateY(-5px); box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.22); }
+  100% { transform: translateY(0px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.12); }
+}
+
+/* Active Cyber Telemetry Pulse */
+.cyber-pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: cyberPing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes cyberPing {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.65; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   #cyberCanvas {
-    opacity: 0.3;
+    opacity: 0.35 !important;
+  }
+  .cyber-motion-float,
+  .auth-card {
+    animation: none !important;
   }
 }
 
