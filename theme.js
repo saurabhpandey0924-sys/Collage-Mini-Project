@@ -191,6 +191,127 @@ async function runHudScanSteps(containerId, onFinish) {
   if (onFinish) onFinish();
 }
 
+// ============================================================
+// MOBILE NAVIGATION CONTROLLER (Dynamic Glassmorphic Drawer)
+// ============================================================
+function initMobileNavigation() {
+  const navbar = document.querySelector('.navbar');
+  if (!navbar) return;
+
+  const navActions = navbar.querySelector('.nav-actions');
+  const navMenu = navbar.querySelector('.nav-menu');
+  if (!navActions || !navMenu) return;
+
+  // 1. Create or select Mobile Toggle Button
+  let mobileBtn = navbar.querySelector('.mobile-toggle-btn');
+  if (!mobileBtn) {
+    mobileBtn = document.createElement('button');
+    mobileBtn.className = 'mobile-toggle-btn';
+    mobileBtn.setAttribute('aria-label', 'Toggle Navigation Menu');
+    mobileBtn.setAttribute('type', 'button');
+    mobileBtn.innerHTML = `
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+    `;
+    navActions.appendChild(mobileBtn);
+  }
+
+  // 2. Create or select Mobile Drawer
+  let drawer = navbar.querySelector('.mobile-nav-drawer');
+  if (!drawer) {
+    drawer = document.createElement('div');
+    drawer.className = 'mobile-nav-drawer';
+
+    const iconMap = {
+      'home': '🏠',
+      'url scanner': '🌐',
+      'email analyzer': '📧',
+      'sms scanner': '📱',
+      'code audit': '💻',
+      'breach intel': '🔒',
+      'dashboard': '📊',
+      'about': 'ℹ️',
+      'privacy': '🛡️',
+      'terms': '📜'
+    };
+
+    let itemsHtml = '';
+    const navItems = navMenu.querySelectorAll('a.nav-item');
+    navItems.forEach(item => {
+      const text = item.textContent.trim();
+      const href = item.getAttribute('href');
+      const isActive = item.classList.contains('active') ? ' active' : '';
+      const lower = text.toLowerCase();
+      let icon = '⚡';
+      for (const [key, ic] of Object.entries(iconMap)) {
+        if (lower.includes(key)) { icon = ic; break; }
+      }
+      itemsHtml += `<a href="${href}" class="mobile-nav-item${isActive}"><span class="m-icon">${icon}</span> <span>${text}</span></a>`;
+    });
+
+    drawer.innerHTML = `
+      <div class="mobile-nav-inner">
+        ${itemsHtml}
+        <div class="mobile-drawer-footer">
+          <a href="#" onclick="logout(); return false;" class="mobile-logout-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Sign Out Session
+          </a>
+        </div>
+      </div>
+    `;
+    navbar.appendChild(drawer);
+  }
+
+  // 3. Toggle Drawer Actions
+  function closeDrawer() {
+    mobileBtn.classList.remove('open');
+    drawer.classList.remove('open');
+  }
+
+  function toggleDrawer(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const isOpen = drawer.classList.contains('open');
+    if (isOpen) {
+      closeDrawer();
+    } else {
+      mobileBtn.classList.add('open');
+      drawer.classList.add('open');
+    }
+  }
+
+  mobileBtn.onclick = toggleDrawer;
+
+  drawer.querySelectorAll('.mobile-nav-item').forEach(link => {
+    link.addEventListener('click', closeDrawer);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!navbar.contains(e.target)) {
+      closeDrawer();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDrawer();
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 900) {
+      closeDrawer();
+    }
+  });
+}
+
 window.init3DTilt = init3DTilt;
 window.runHudScanSteps = runHudScanSteps;
+window.initMobileNavigation = initMobileNavigation;
+
+document.addEventListener('DOMContentLoaded', () => {
+  initMobileNavigation();
+});
 
