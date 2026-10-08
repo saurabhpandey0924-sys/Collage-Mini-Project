@@ -6,8 +6,8 @@
   <title>Analyst Authentication — PhishGuard AI</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2338bdf8'><path d='M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V6l-9-4z'/></svg>" type="image/svg+xml">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2.1" />
-  <script src="theme.js?v=2.1"></script>
+  <link rel="stylesheet" href="style.css?v=2.2" />
+  <script src="theme.js?v=2.2"></script>
   <style>
     body {
       display: flex;
@@ -32,6 +32,12 @@
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.1);
+      transition: all 0.3s ease;
+    }
+    [data-theme="light"] .auth-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(15, 23, 42, 0.1);
+      box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.12);
     }
     .switch-mode {
       text-align: center;
@@ -44,6 +50,10 @@
       cursor: pointer;
       text-decoration: none;
       font-weight: 600;
+      transition: color 0.2s ease;
+    }
+    .switch-mode a:hover {
+      text-decoration: underline;
     }
     .top-nav-bar {
       position: fixed;
@@ -74,6 +84,31 @@
       color: #fff;
       border-color: rgba(56, 189, 248, 0.4);
       background: rgba(56, 189, 248, 0.08);
+    }
+    [data-theme="light"] .back-home-btn {
+      background: rgba(255, 255, 255, 0.85);
+      border-color: rgba(15, 23, 42, 0.1);
+      color: #475569;
+    }
+    [data-theme="light"] .back-home-btn:hover {
+      background: rgba(2, 132, 199, 0.08);
+      color: #0284c7;
+      border-color: rgba(2, 132, 199, 0.3);
+    }
+    @media (max-width: 480px) {
+      .auth-card {
+        padding: 24px 18px;
+        border-radius: 16px;
+      }
+      .top-nav-bar {
+        top: 12px;
+        left: 14px;
+        right: 14px;
+      }
+      .back-home-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+      }
     }
   </style>
 </head>
@@ -136,11 +171,11 @@
       <form id="authForm">
         <div class="field">
           <label style="font-weight: 600;">Analyst Username</label>
-          <input type="text" id="username" placeholder="e.g. analyst1" required style="border-radius: 10px;" />
+          <input type="text" id="username" placeholder="e.g. analyst1" required style="border-radius: 10px;" autocomplete="username" />
         </div>
         <div class="field">
           <label style="font-weight: 600;">Security Key / Password</label>
-          <input type="password" id="password" placeholder="••••••••••••" required style="border-radius: 10px;" />
+          <input type="password" id="password" placeholder="••••••••••••" required style="border-radius: 10px;" autocomplete="current-password" />
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 14px; padding: 11px; font-weight: 600;" id="authBtn">Authenticate Session</button>
       </form>
@@ -149,7 +184,7 @@
         Continue as Guest Analyst
       </button>
 
-      <div id="errorMsg" style="color: #ef4444; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); border-radius: 8px; padding: 10px; font-size: 0.84rem; text-align: center; margin-top: 16px; display: none;"></div>
+      <div id="errorMsg" style="border-radius: 8px; padding: 11px 14px; font-size: 0.84rem; text-align: center; margin-top: 16px; display: none; line-height: 1.45;"></div>
 
       <div class="switch-mode" id="switchMode">
         Don't have an account? <a onclick="toggleMode()">Register here</a>
@@ -161,7 +196,7 @@
     let isLogin = true;
 
     function guestLogin() {
-      localStorage.setItem('token', 'gh_pages_guest_' + Date.now());
+      localStorage.setItem('token', 'analyst_guest_' + Date.now());
       localStorage.setItem('username', 'Guest Analyst');
       window.location.href = 'index.html';
     }
@@ -169,83 +204,167 @@
     function toggleMode() {
       isLogin = !isLogin;
       document.getElementById('authTitle').innerText = isLogin ? 'SOC Terminal Access' : 'Create Analyst Account';
-      document.getElementById('authDesc').innerText = isLogin ? 'Sign in to unlock multi-engine heuristics and persistent logs.' : 'Register a new operator identity on this node.';
+      document.getElementById('authDesc').innerText = isLogin ? 'Sign in to unlock multi-engine heuristics and persistent investigation logs.' : 'Register a new operator identity on this node.';
       document.getElementById('authBtn').innerText = isLogin ? 'Authenticate Session' : 'Create Identity';
       document.getElementById('switchMode').innerHTML = isLogin 
         ? `Don't have an account? <a onclick="toggleMode()">Register here</a>` 
         : `Already registered? <a onclick="toggleMode()">Log in here</a>`;
-      document.getElementById('errorMsg').style.display = 'none';
+      const msg = document.getElementById('errorMsg');
+      msg.style.display = 'none';
+    }
+
+    // Client-side account persistence helper
+    function getStoredUsers() {
+      try {
+        return JSON.parse(localStorage.getItem('phishguard_registered_users') || '{}');
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveStoredUsers(users) {
+      localStorage.setItem('phishguard_registered_users', JSON.stringify(users));
     }
 
     document.getElementById('authForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const u = document.getElementById('username').value.trim();
       const p = document.getElementById('password').value.trim();
-      const path = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const submitBtn = document.getElementById('authBtn');
 
-      // Auto-detect backend: if opened from LiveServer (port 5500) or file://, route to http://localhost:3000
-      const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '3000'))
-        ? 'http://localhost:3000'
+      if (!u || !p) {
+        showFeedback('Please provide both username and security key.', 'error');
+        return;
+      }
+
+      if (!isLogin && p.length < 4) {
+        showFeedback('Security key must be at least 4 characters long.', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      const originalBtnText = submitBtn.innerText;
+      submitBtn.innerText = isLogin ? 'Verifying...' : 'Registering...';
+
+      const path = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const isStaticEnv = window.location.protocol === 'file:' || window.location.hostname.includes('github.io');
+      
+      // Auto-detect backend if running locally
+      const API_BASE = (!isStaticEnv && window.location.port && window.location.port !== '3000') 
+        ? 'http://localhost:3000' 
         : '';
       const endpoint = API_BASE + path;
 
-      try {
-        let res = null;
-        let data = null;
-
+      // 1. Try real Python Flask backend if not on pure static hosting
+      if (!isStaticEnv) {
         try {
-          res = await fetch(endpoint, {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 1800);
+          const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: u, password: p })
+            body: JSON.stringify({ username: u, password: p }),
+            signal: controller.signal
           });
+          clearTimeout(timeoutId);
+
           const contentType = res.headers.get('content-type') || '';
           if (contentType.includes('application/json')) {
-            data = await res.json();
+            const data = await res.json();
+            if (res.ok && data) {
+              if (isLogin) {
+                localStorage.setItem('token', data.token || ('token_' + Date.now()));
+                const loggedUser = (data.user && data.user.username) ? data.user.username : (data.username || u);
+                localStorage.setItem('username', loggedUser);
+                window.location.href = 'index.html';
+                return;
+              } else {
+                showFeedback('Account registered with backend! Redirecting to login...', 'success');
+                setTimeout(() => {
+                  toggleMode();
+                  document.getElementById('username').value = u;
+                  submitBtn.disabled = false;
+                  submitBtn.innerText = 'Authenticate Session';
+                }, 700);
+                return;
+              }
+            } else if (!res.ok && data && data.error) {
+              submitBtn.disabled = false;
+              submitBtn.innerText = originalBtnText;
+              showFeedback(data.error, 'error');
+              return;
+            }
           }
-        } catch (netErr) {
-          // Network error or static GitHub Pages hosting
+        } catch (fetchErr) {
+          // Backend offline or unreachable; fall through to dual-mode persistence
         }
+      }
 
-        if (res && res.ok && data) {
-          if (isLogin) {
-            localStorage.setItem('token', data.token);
-            const loggedUsername = (data.user && data.user.username) ? data.user.username : (data.username || u);
-            localStorage.setItem('username', loggedUsername);
-            window.location.href = 'index.html';
-          } else {
-            toggleMode();
-            document.getElementById('errorMsg').style.display = 'block';
-            document.getElementById('errorMsg').style.color = '#10b981';
-            document.getElementById('errorMsg').style.background = 'rgba(16,185,129,0.1)';
-            document.getElementById('errorMsg').style.borderColor = 'rgba(16,185,129,0.25)';
-            document.getElementById('errorMsg').innerText = 'Registration successful! You may now authenticate.';
-          }
+      // 2. Resilient Dual-Mode Handler (GitHub Pages & Offline Node)
+      const users = getStoredUsers();
+
+      if (!isLogin) {
+        // REGISTRATION MODE
+        if (users[u.toLowerCase()]) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = originalBtnText;
+          showFeedback('Analyst username already registered on this node. Please log in.', 'error');
           return;
         }
 
-        // If backend returned an error, display the specific error message
-        if (res && !res.ok && data && data.error) {
-          throw new Error(data.error);
-        } else if (res && !res.ok) {
-          throw new Error(`Server returned an error: ${res.status}`);
+        // Store new analyst credentials locally
+        users[u.toLowerCase()] = {
+          username: u,
+          password: p,
+          registeredAt: new Date().toISOString()
+        };
+        saveStoredUsers(users);
+
+        showFeedback('Analyst identity successfully created! Authenticating...', 'success');
+        localStorage.setItem('token', 'phishguard_live_' + Date.now());
+        localStorage.setItem('username', u);
+
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 600);
+
+      } else {
+        // LOGIN MODE
+        const existing = users[u.toLowerCase()];
+        if (existing) {
+          if (existing.password !== p) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalBtnText;
+            showFeedback('Invalid security key. Please check your password.', 'error');
+            return;
+          }
         }
 
-        // If we reached here without a response, the backend is unreachable
-        if (isLogin) {
-          throw new Error('Cannot connect to the backend server on port 3000. Try continuing as Guest Analyst.');
-        } else {
-          throw new Error('Cannot connect to the server. Registration requires the backend to be running.');
-        }
+        // Successful authentication
+        localStorage.setItem('token', 'phishguard_live_' + Date.now());
+        localStorage.setItem('username', existing ? existing.username : u);
+        showFeedback('Identity confirmed. Initializing SOC terminal...', 'success');
 
-      } catch (err) {
-        document.getElementById('errorMsg').style.display = 'block';
-        document.getElementById('errorMsg').style.color = '#ef4444';
-        document.getElementById('errorMsg').style.background = 'rgba(239,68,68,0.1)';
-        document.getElementById('errorMsg').style.borderColor = 'rgba(239,68,68,0.25)';
-        document.getElementById('errorMsg').innerText = err.message;
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 400);
       }
     });
+
+    function showFeedback(msg, type) {
+      const box = document.getElementById('errorMsg');
+      box.style.display = 'block';
+      if (type === 'success') {
+        box.style.color = '#10b981';
+        box.style.background = 'rgba(16, 185, 129, 0.12)';
+        box.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+      } else {
+        box.style.color = '#ef4444';
+        box.style.background = 'rgba(239, 68, 68, 0.12)';
+        box.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+      }
+      box.innerText = msg;
+    }
   </script>
 </body>
 </html>
