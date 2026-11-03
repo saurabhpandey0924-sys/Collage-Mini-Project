@@ -1,4 +1,4 @@
-# 🛡️ Advanced Phishing Website & Email Detection Using Machine Learning
+# 🛡️ Fishgard: Advanced Phishing Website & Email Detection Using Machine Learning
 
 [![Python 3.13](https://img.shields.io/badge/Python-3.13+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
